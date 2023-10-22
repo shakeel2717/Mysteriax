@@ -4,6 +4,7 @@ namespace App;
 
 use App\Model\Post;
 use App\Model\Subscription;
+use App\Model\Transaction;
 use App\Model\UserList;
 use App\Providers\GenericHelperServiceProvider;
 use Carbon\Carbon;
@@ -29,7 +30,7 @@ class User extends \TCG\Voyager\Models\User implements MustVerifyEmail
         'profile_access_price_12_months',
         'profile_access_price_3_months',
         'public_profile', 'city', 'country', 'state', 'email_verified_at', 'paid_profile',
-        'auth_provider','auth_provider_id', 'enable_2fa', 'enable_geoblocking', 'open_profile', 'referral_code'
+        'auth_provider', 'auth_provider_id', 'enable_2fa', 'enable_geoblocking', 'open_profile', 'referral_code'
     ];
 
     /**
@@ -71,7 +72,8 @@ class User extends \TCG\Voyager\Models\User implements MustVerifyEmail
      * @return int
      * @throws \Exception
      */
-    public function getFansCountAttribute(){
+    public function getFansCountAttribute()
+    {
         $activeSubscriptionsCount = Subscription::query()
             ->where('recipient_user_id', Auth::user()->id)
             ->whereDate('expires_at', '>=', new \DateTime('now', new \DateTimeZone('UTC')))
@@ -84,7 +86,8 @@ class User extends \TCG\Voyager\Models\User implements MustVerifyEmail
      * Gets the count of followers
      * @return int|mixed
      */
-    public function getFollowingCountAttribute(){
+    public function getFollowingCountAttribute()
+    {
         $userId = Auth::user()->id;
         $userFollowingMembers = UserList::query()
             ->where(['user_id' => $userId, 'type' => 'following'])
@@ -96,10 +99,10 @@ class User extends \TCG\Voyager\Models\User implements MustVerifyEmail
 
     public function getIsActiveCreatorAttribute($value)
     {
-        if(getSetting('compliance.monthly_posts_before_inactive')){
-            $check = Post::where('user_id', $this->id)->where('created_at','>=',Carbon::now()->subdays(30))->count();
+        if (getSetting('compliance.monthly_posts_before_inactive')) {
+            $check = Post::where('user_id', $this->id)->where('created_at', '>=', Carbon::now()->subdays(30))->count();
             $hasPassedPreApprovedLimit = true;
-            if(getSetting('compliance.admin_approved_posts_limit')){
+            if (getSetting('compliance.admin_approved_posts_limit')) {
                 $hasPassedPreApprovedLimit = Post::where('user_id', $this->id)->where('status', Post::APPROVED_STATUS)->count();
                 $hasPassedPreApprovedLimit = $hasPassedPreApprovedLimit >= (int)getSetting('compliance.admin_approved_posts_limit');
             }
@@ -113,12 +116,24 @@ class User extends \TCG\Voyager\Models\User implements MustVerifyEmail
      */
     public function posts()
     {
-			if(getSetting('compliance.admin_approved_posts_limit') > 0) {
-				return $this->hasMany('App\Model\Post')->where('status', Post::APPROVED_STATUS);
-			} else {
-				return $this->hasMany('App\Model\Post');
-			}
+        if (getSetting('compliance.admin_approved_posts_limit') > 0) {
+            return $this->hasMany('App\Model\Post')->where('status', Post::APPROVED_STATUS);
+        } else {
+            return $this->hasMany('App\Model\Post');
+        }
     }
+
+    // count all transactions income for this user
+    public function getGrossEarnings()
+    {
+        return Transaction::where('recipient_user_id', $this->id)->sum('amount');
+    }
+
+    public function getNetEarnings()
+    {
+        return Transaction::where('recipient_user_id', $this->id)->sum('amount');
+    }
+
 
     public function postComments()
     {
@@ -155,6 +170,11 @@ class User extends \TCG\Voyager\Models\User implements MustVerifyEmail
         return $this->hasMany('App\Model\Transaction');
     }
 
+    public function myTransactions()
+    {
+        return $this->hasMany('App\Model\Transaction', 'recipient_user_id');
+    }
+
     public function withdrawals()
     {
         return $this->hasMany('App\Model\Withdrawal');
@@ -189,5 +209,4 @@ class User extends \TCG\Voyager\Models\User implements MustVerifyEmail
     {
         return $this->hasOne('App\Model\CreatorOffer');
     }
-
 }

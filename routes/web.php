@@ -12,6 +12,9 @@
 */
 
 // Admin routes ( Needs to be placed above )
+
+use App\Http\Controllers\EarningController;
+
 Route::group(['prefix' => 'admin', 'middleware' => 'jsVars'], function () {
     Voyager::routes();
     Route::get('/metrics/new/users/value', 'MetricsController@newUsersValue')->name('admin.metrics.new.users.value');
@@ -89,6 +92,8 @@ Route::group(['middleware' => ['auth','verified','2fa']], function () {
             Route::post('/authorizeUser', 'MessengerController@authorizeUser', ['as' => 'authorize']);
             Route::post('/markSeen', 'MessengerController@markSeen', ['as' => 'mark']);
         });
+
+        Route::resource('earning', 'EarningController');
         /*
          * (My) Bookmarks
          */

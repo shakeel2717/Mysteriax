@@ -78,19 +78,19 @@
                 <a href="{{route('my.bookmarks')}}" class="nav-link {{Route::currentRouteName() == 'my.bookmarks' ? 'active' : ''}} h-pill h-pill-primary d-flex justify-content-between">
                     <div class="d-flex justify-content-center align-items-center">
                         <div class="icon-wrapper d-flex justify-content-center align-items-center">
-                            @include('elements.icon',['icon'=>'bookmark-outline','variant'=>'large'])
+                            @include('elements.icon',['icon'=>'image-outline','variant'=>'large'])
                         </div>
-                        <span class="d-none d-md-block d-xl-block d-lg-block ml-2 text-truncate side-menu-label">{{__('Bookmarks')}}</span>
+                        <span class="d-none d-md-block d-xl-block d-lg-block ml-2 text-truncate side-menu-label">{{__('Vault')}}</span>
                     </div>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{route('my.lists.all')}}" class="nav-link {{Route::currentRouteName() == 'my.lists.all' ? 'active' : ''}} h-pill h-pill-primary d-flex justify-content-between">
+                <a href="{{route('my.earning.index')}}" class="nav-link {{Route::currentRouteName() == 'my.earning.index' ? 'active' : ''}} h-pill h-pill-primary d-flex justify-content-between">
                     <div class="d-flex justify-content-center align-items-center">
                         <div class="icon-wrapper d-flex justify-content-center align-items-center">
-                            @include('elements.icon',['icon'=>'list-outline','variant'=>'large'])
+                            @include('elements.icon',['icon'=>'wallet-outline','variant'=>'large'])
                         </div>
-                        <span class="d-none d-md-block d-xl-block d-lg-block ml-2 text-truncate side-menu-label">{{__('Lists')}}</span>
+                        <span class="d-none d-md-block d-xl-block d-lg-block ml-2 text-truncate side-menu-label">{{__('Earnings')}}</span>
                     </div>
                 </a>
             </li>
