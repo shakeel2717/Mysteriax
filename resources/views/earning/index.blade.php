@@ -101,7 +101,7 @@
                         <div class="card">
                             <div class="card-body shadow">
                                 <h5 class="card-title">Tips</h5>
-                                <h2 class="card-title mb-0">$0</h2>
+                                <h2 class="card-title mb-0">${{ number_format(auth()->user()->getTipsEarnings(),2) }}</h2>
                             </div>
                         </div>
                     </div>
@@ -109,7 +109,8 @@
                         <div class="card">
                             <div class="card-body shadow">
                                 <h5 class="card-title">Purchases</h5>
-                                <h2 class="card-title mb-0">$0</h2>
+                                <h2 class="card-title mb-0">${{ number_format(auth()->user()->getPurchaseEarnings(),2) }}
+                                </h2>
                             </div>
                         </div>
                     </div>
@@ -117,7 +118,8 @@
                         <div class="card">
                             <div class="card-body shadow">
                                 <h5 class="card-title">Subscriptions</h5>
-                                <h2 class="card-title mb-0">$0</h2>
+                                <h2 class="card-title mb-0">
+                                    ${{ number_format(auth()->user()->getSubscriptionEarnings(),2) }}</h2>
                             </div>
                         </div>
                     </div>
@@ -139,7 +141,13 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (auth()->user()->myTransactions as $transaction)
+                            @php
+                                $transactions = auth()
+                                    ->user()
+                                    ->myTransactions()
+                                    ->paginate(10);
+                            @endphp
+                            @foreach ($transactions as $transaction)
                                 <tr>
                                     <td>{{ $transaction->created_at->diffForHumans() }}</td>
                                     <td>{{ strtoupper($transaction->type) }}</td>
@@ -150,6 +158,9 @@
                             @endforeach
                         </tbody>
                     </table>
+                    <div class="d-flex justify-content-end mr-4">
+                        {{ $transactions->links() }}
+                    </div>
                 </div>
             </div>
         </div>
