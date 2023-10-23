@@ -94,6 +94,7 @@ Route::group(['middleware' => ['auth','verified','2fa']], function () {
         });
 
         Route::resource('earning', 'EarningController');
+        Route::resource('vault', 'VaultController');
         /*
          * (My) Bookmarks
          */

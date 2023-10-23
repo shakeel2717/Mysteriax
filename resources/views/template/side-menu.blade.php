@@ -74,8 +74,18 @@
                     </a>
                 </li>
             @endif
-            <li class="nav-item">
+            {{-- <li class="nav-item">
                 <a href="{{route('my.bookmarks')}}" class="nav-link {{Route::currentRouteName() == 'my.bookmarks' ? 'active' : ''}} h-pill h-pill-primary d-flex justify-content-between">
+                    <div class="d-flex justify-content-center align-items-center">
+                        <div class="icon-wrapper d-flex justify-content-center align-items-center">
+                            @include('elements.icon',['icon'=>'image-outline','variant'=>'large'])
+                        </div>
+                        <span class="d-none d-md-block d-xl-block d-lg-block ml-2 text-truncate side-menu-label">{{__('Vault')}}</span>
+                    </div>
+                </a>
+            </li> --}}
+            <li class="nav-item">
+                <a href="{{route('my.vault.index')}}" class="nav-link {{Route::currentRouteName() == 'my.vault' ? 'active' : ''}} h-pill h-pill-primary d-flex justify-content-between">
                     <div class="d-flex justify-content-center align-items-center">
                         <div class="icon-wrapper d-flex justify-content-center align-items-center">
                             @include('elements.icon',['icon'=>'image-outline','variant'=>'large'])
