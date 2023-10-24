@@ -9,7 +9,7 @@ use Livewire\WithFileUploads;
 class Vault extends Component
 {
     use WithFileUploads;
-    public $attachment;
+    public $attachments = [];
     public $files;
     public $selectedImages = [];
 
@@ -39,18 +39,22 @@ class Vault extends Component
     public function upload()
     {
         $this->validate([
-            'attachment' => 'required|image|max:10024',
+            'attachments.*' => 'required|image|max:10024',
         ]);
 
-        $path = $this->attachment->store('uploads/vault/' . auth()->user()->username);
-        // saving this file in database
-        $gallery = Gallery::create([
-            'user_id' => auth()->user()->id,
-            'title' => $this->attachment->getClientOriginalName(),
-            'image' => $path,
-        ]);
+        // $path = $this->attachments->store('uploads/vault/' . auth()->user()->username);
+        // attachments are multiple now, so we need to loop through them
+        foreach ($this->attachments as $attachment) {
+            $path = $attachment->store('uploads/vault/' . auth()->user()->username);
+            // Saving this file in the database
+            Gallery::create([
+                'user_id' => auth()->user()->id,
+                'title' => $attachment->getClientOriginalName(),
+                'image' => $path,
+            ]);
+        }
 
-        $this->attachment = null;
+        $this->attachments = [];
 
         $this->mount();
 
