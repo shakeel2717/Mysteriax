@@ -13,7 +13,6 @@ class Vault extends Component
     public $files;
     public $selectedImages = [];
 
-
     public function toggleSelection($imageId)
     {
         if (in_array($imageId, $this->selectedImages)) {
@@ -36,20 +35,34 @@ class Vault extends Component
         $this->selectedImages = [];
     }
 
+    public function SelectedAllMedia(){
+        $this->selectedImages = $this->files->pluck('id')->map(function ($id) {
+            return (string) $id;
+        })->toArray();
+    }
+
     public function upload()
     {
         $this->validate([
-            'attachments.*' => 'required|image|max:10024',
+            'attachments.*' => 'required|file|mimes:png,jpg,mp4|max:10024',
         ]);
 
-        // $path = $this->attachments->store('uploads/vault/' . auth()->user()->username);
         // attachments are multiple now, so we need to loop through them
         foreach ($this->attachments as $attachment) {
             $path = $attachment->store('uploads/vault/' . auth()->user()->username);
+            // get this file extension
+            $extension = $attachment->getClientOriginalExtension();
+            if ($extension == 'mp4') {
+                $type = 'video';
+            } else {
+                $type = 'image';
+            }
+
             // Saving this file in the database
             Gallery::create([
                 'user_id' => auth()->user()->id,
                 'title' => $attachment->getClientOriginalName(),
+                'type' => $type,
                 'image' => $path,
             ]);
         }
