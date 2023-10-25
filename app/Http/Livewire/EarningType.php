@@ -26,10 +26,26 @@ class EarningType extends Component
 
     public function searchCustom()
     {
+        $transactions = Transaction::where('recipient_user_id', auth()->user()->id)
+            // ->whereBetween('created_at', [$this->startDate, $this->endDate])
+            ->orderBy('created_at', 'desc')
+            ->get();
         $this->startDate = Carbon::parse($this->customStartDate);
         $this->endDate = Carbon::parse($this->customEndDate);
-        // dd($this->startDate, $this->endDate);
-        $this->fetchReport();
+
+        // this report is custom, so show daily report from start to end date
+        $currentDate = $this->startDate;
+        while ($currentDate <= $this->endDate) {
+            $startOfDay = $currentDate->copy()->startOfMonth();
+            $endOfDay = $currentDate->copy()->endOfMonth();
+            $this->months[] = $startOfDay->format('Y-m-d');
+            $this->monthlyEarnings[] = $transactions->filter(function ($item) use ($startOfDay, $endOfDay) {
+                return $item->created_at >= $startOfDay && $item->created_at <= $endOfDay;
+            })->sum('amount');
+            $currentDate->addMonth();
+        }
+
+        $this->dispatchBrowserEvent('earnings-updated', ['months' => json_encode($this->months), 'monthlyEarnings' => json_encode($this->monthlyEarnings)]);
     }
 
     public function updatedDateRange()
@@ -48,64 +64,86 @@ class EarningType extends Component
         $this->months = [];
         $this->monthlyEarnings = [];
 
-        if ($this->dateRange == '1day') {
-            $currentDate = Carbon::now()->subDays(7);
+        if ($this->dateRange == 'all') {
+            $this->startDate = Carbon::now()->subDays(2700);
+            $this->endDate = Carbon::today();
+            $this->customShowBox = false;
+            $currentDate = Carbon::now()->subDays(2700);
             while ($currentDate <= Carbon::now()->today()) {
-                $this->months[] = $currentDate->format('Y-m-d');
-                $this->monthlyEarnings[] = $transactions->filter(function ($item) use ($currentDate) {
-                    return $item->created_at->format('Y-m-d') == $currentDate->format('Y-m-d');
+                $startOfYear = $currentDate->copy()->startOfYear();
+                $endOfYear = $currentDate->copy()->endOfYear();
+                $this->months[] = $startOfYear->format('Y-m-d');
+                $this->monthlyEarnings[] = $transactions->filter(function ($item) use ($startOfYear, $endOfYear) {
+                    return $item->created_at >= $startOfYear && $item->created_at <= $endOfYear;
                 })->sum('amount');
-                $currentDate->addDay(); // Move to the next day
+                $currentDate->addYear();
+            }
+        } elseif ($this->dateRange == 'daily') {
+            $this->startDate = Carbon::now()->subDays(1);
+            $this->endDate = Carbon::today();
+            $this->customShowBox = false;
+            // this report is daily, so show hourly report for past 24 hours
+            $currentDate = Carbon::now()->subDays(1);
+            while ($currentDate <= Carbon::now()->today()) {
+                $startOfHour = $currentDate->copy()->startOfHour();
+                $endOfHour = $currentDate->copy()->endOfHour();
+                $this->months[] = $startOfHour->format('Y-m-d H:i:s');
+                $this->monthlyEarnings[] = $transactions->filter(function ($item) use ($startOfHour, $endOfHour) {
+                    return $item->created_at >= $startOfHour && $item->created_at <= $endOfHour;
+                })->sum('amount');
+                $currentDate->addHour();
             }
         } elseif ($this->dateRange == '7days') {
-            $currentDate = Carbon::now()->subDays(49);
+            $this->startDate = Carbon::now()->subDays(7);
+            $this->endDate = Carbon::today();
+            $this->customShowBox = false;
+            // this report is weekly, so show daily report for past 7 days
+            $currentDate = Carbon::now()->subDays(7);
             while ($currentDate <= Carbon::now()->today()) {
-                $startOfWeek = $currentDate->copy()->startOfWeek();
-                $endOfWeek = $currentDate->copy()->endOfWeek();
-                $this->months[] = $startOfWeek->format('Y-m-d');
-                $this->monthlyEarnings[] = $transactions->filter(function ($item) use ($startOfWeek, $endOfWeek) {
-                    return $item->created_at >= $startOfWeek && $item->created_at <= $endOfWeek;
+                $startOfDay = $currentDate->copy()->startOfDay();
+                $endOfDay = $currentDate->copy()->endOfDay();
+                $this->months[] = $startOfDay->format('Y-m-d');
+                $this->monthlyEarnings[] = $transactions->filter(function ($item) use ($startOfDay, $endOfDay) {
+                    return $item->created_at >= $startOfDay && $item->created_at <= $endOfDay;
                 })->sum('amount');
-                $currentDate->addWeek(); // Move to the next week
+                $currentDate->addDay();
             }
-        } elseif ($this->dateRange == '1month') {
-            $currentDate = Carbon::now()->subDays(217);
+        } elseif ($this->dateRange == '30days') {
+            $this->startDate = Carbon::now()->subDays(30);
+            $this->endDate = Carbon::today();
+            $this->customShowBox = false;
+            // this report is monthly, so show daily report for past 30 days
+            $currentDate = Carbon::now()->subDays(30);
             while ($currentDate <= Carbon::now()->today()) {
-                $startOfWeek = $currentDate->copy()->startOfMonth();
-                $endOfWeek = $currentDate->copy()->endOfMonth();
-                $this->months[] = $startOfWeek->format('Y-m-d');
-                $this->monthlyEarnings[] = $transactions->filter(function ($item) use ($startOfWeek, $endOfWeek) {
-                    return $item->created_at >= $startOfWeek && $item->created_at <= $endOfWeek;
+                $startOfDay = $currentDate->copy()->startOfDay();
+                $endOfDay = $currentDate->copy()->endOfDay();
+                $this->months[] = $startOfDay->format('Y-m-d');
+                $this->monthlyEarnings[] = $transactions->filter(function ($item) use ($startOfDay, $endOfDay) {
+                    return $item->created_at >= $startOfDay && $item->created_at <= $endOfDay;
                 })->sum('amount');
-                $currentDate->addMonth(); // Move to the next week
+                $currentDate->addDay();
             }
-        } elseif ($this->dateRange == '12months') {
-            $currentDate = Carbon::now()->subDays(2700);
+        } elseif ($this->dateRange == '90days') {
+            $this->startDate = Carbon::now()->subDays(90);
+            $this->endDate = Carbon::today();
+            $this->customShowBox = false;
+            // this report is 3 months, so show daily report for past 30 days
+            $currentDate = Carbon::now()->subDays(90);
             while ($currentDate <= Carbon::now()->today()) {
-                $startOfWeek = $currentDate->copy()->startOfYear();
-                $endOfWeek = $currentDate->copy()->endOfYear();
-                $this->months[] = $startOfWeek->format('Y-m-d');
-                $this->monthlyEarnings[] = $transactions->filter(function ($item) use ($startOfWeek, $endOfWeek) {
-                    return $item->created_at >= $startOfWeek && $item->created_at <= $endOfWeek;
+                $startOfDay = $currentDate->copy()->startOfDay();
+                $endOfDay = $currentDate->copy()->endOfDay();
+                $this->months[] = $startOfDay->format('Y-m-d');
+                $this->monthlyEarnings[] = $transactions->filter(function ($item) use ($startOfDay, $endOfDay) {
+                    return $item->created_at >= $startOfDay && $item->created_at <= $endOfDay;
                 })->sum('amount');
-                $currentDate->addYear(); // Move to the next week
+                $currentDate->addDay();
             }
-        } elseif ($this->dateRange == 'all') {
-            $currentDate = Carbon::now()->subDays(2700);
-            while ($currentDate <= Carbon::now()->today()) {
-                $startOfWeek = $currentDate->copy()->startOfYear();
-                $endOfWeek = $currentDate->copy()->endOfYear();
-                $this->months[] = $startOfWeek->format('Y-m-d');
-                $this->monthlyEarnings[] = $transactions->filter(function ($item) use ($startOfWeek, $endOfWeek) {
-                    return $item->created_at >= $startOfWeek && $item->created_at <= $endOfWeek;
-                })->sum('amount');
-                $currentDate->addYear(); // Move to the next week
-            }
+        } elseif ($this->dateRange == 'custom') {
+            $this->customShowBox = true;
         }
 
         // Dispatch the browser event
         $this->dispatchBrowserEvent('earnings-updated', ['months' => json_encode($this->months), 'monthlyEarnings' => json_encode($this->monthlyEarnings)]);
-        info('Dispatched');
     }
 
 
