@@ -13,12 +13,23 @@ class EarningType extends Component
     public $dateRange = 'all';
     public $startDate;
     public $endDate;
+    public $customShowBox = false;
+    public $customStartDate;
+    public $customEndDate;
 
     public function mount()
     {
         $this->startDate = Carbon::now()->subYear(10);
         $this->endDate = Carbon::now();
         $this->updatedDateRange();
+    }
+
+    public function searchCustom()
+    {
+        $this->startDate = Carbon::parse($this->customStartDate);
+        $this->endDate = Carbon::parse($this->customEndDate);
+        // dd($this->startDate, $this->endDate);
+        $this->fetchReport();
     }
 
     public function updatedDateRange()
@@ -45,6 +56,10 @@ class EarningType extends Component
             case 'lastyear':
                 $this->startDate = Carbon::now()->subYear();
                 $this->endDate = Carbon::now();
+                break;
+
+            case 'custom':
+                $this->customShowBox = true;
                 break;
 
             default:
