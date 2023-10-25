@@ -3,23 +3,92 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const line = document.getElementById('myLineChart');
-    new Chart(line, {
-        type: 'line',
-        data: {
-            labels: @json($months), // Use the modified $months array
-            datasets: [{
-                label: 'Earnings: ',
-                data: @json($monthlyEarnings),
-                borderWidth: 2
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
+    let myLineChart = null;
+    let myBarChart = null;
+    let myPieChart = null;
+
+    window.addEventListener('earnings-updated', function(event) {
+        var months = JSON.parse(event.detail.months);
+        var monthlyEarnings = JSON.parse(event.detail.monthlyEarnings);
+
+        if (myLineChart) {
+            myLineChart.destroy();
+        }
+
+        const line = document.getElementById('myLineChart');
+        myLineChart = new Chart(line, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'Earnings: ',
+                    data: monthlyEarnings,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
                 }
             }
+        });
+
+
+        // bar chart
+
+
+        if (myBarChart) {
+            // If a chart instance exists, destroy it before creating a new one
+            myBarChart.destroy();
         }
+
+        const bar = document.getElementById('myBarChart');
+        myBarChart = new Chart(bar, {
+            type: 'bar',
+            data: {
+                labels: months, // Use the modified $months array
+                datasets: [{
+                    label: 'Earnings: ',
+                    data: monthlyEarnings,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+
+        // pie chart
+        if (myPieChart) {
+            // If a chart instance exists, destroy it before creating a new one
+            myPieChart.destroy();
+        }
+
+        const pie = document.getElementById('myPieChart');
+        myPieChart = new Chart(pie, {
+            type: 'pie',
+            data: {
+                labels: months, // Use the modified $months array
+                datasets: [{
+                    label: 'Earnings: ',
+                    data: monthlyEarnings,
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: false,
+                    tooltip: true,
+                },
+            }
+        });
+
     });
 </script>

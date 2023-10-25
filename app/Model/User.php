@@ -134,7 +134,6 @@ class User extends \TCG\Voyager\Models\User implements MustVerifyEmail
         return Transaction::where('recipient_user_id', $this->id)->sum('amount');
     }
 
-
     public function getTipsEarnings()
     {
         return Transaction::where('recipient_user_id', $this->id)->where('type','tip')->sum('amount');
