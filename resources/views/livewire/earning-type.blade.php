@@ -13,11 +13,10 @@
                             <label for="date-range">Select Custom Report:</label>
                             <select wire:model="dateRange" class="form-control">
                                 <option value="all" selected>All</option>
-                                <option value="last7days">Last 7 days</option>
-                                <option value="last30days">Last 30 days</option>
-                                <option value="last90days">Last 90 days</option>
-                                <option value="lastyear">Last year</option>
-                                <option value="custom">Custom</option>
+                                <option value="1day">1 Day</option>
+                                <option value="7days">7 Days</option>
+                                <option value="1month">1 Month</option>
+                                <option value="12months">12 Months</option>
                             </select>
                         </div>
                         @if ($customShowBox)

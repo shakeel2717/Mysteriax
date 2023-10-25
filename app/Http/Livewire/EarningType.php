@@ -34,40 +34,6 @@ class EarningType extends Component
 
     public function updatedDateRange()
     {
-        switch ($this->dateRange) {
-            case 'last7days':
-                $this->startDate = Carbon::now()->subDays(7);
-                $this->endDate = Carbon::now();
-                break;
-            case 'last30days':
-                $this->startDate = Carbon::now()->subMonth();
-                $this->endDate = Carbon::now();
-                break;
-            case 'last90days':
-                $this->startDate = Carbon::now()->subDays(90);
-                $this->endDate = Carbon::now();
-                break;
-
-            case 'lastyear':
-                $this->startDate = Carbon::now()->subYear();
-                $this->endDate = Carbon::now();
-                break;
-
-            case 'lastyear':
-                $this->startDate = Carbon::now()->subYear();
-                $this->endDate = Carbon::now();
-                break;
-
-            case 'custom':
-                $this->customShowBox = true;
-                break;
-
-            default:
-                $this->startDate = Carbon::now()->subYear(10);
-                $this->endDate = Carbon::now();
-                break;
-        }
-
         $this->fetchReport();
     }
 
@@ -75,29 +41,76 @@ class EarningType extends Component
     public function fetchReport()
     {
         $transactions = Transaction::where('recipient_user_id', auth()->user()->id)
-            ->whereBetween('created_at', [$this->startDate, $this->endDate])
+            // ->whereBetween('created_at', [$this->startDate, $this->endDate])
             ->orderBy('created_at', 'desc')
-            ->get()
-            ->groupBy(function ($item) {
-                return $item->created_at->format('Y-M');
-            });
+            ->get();
+
         $this->months = [];
-
-        $this->months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-        $currentYear = date('Y');
         $this->monthlyEarnings = [];
 
-        foreach ($this->months as $month) {
-
-            $this->monthlyEarnings[] = $transactions->has($currentYear . '-' . $month) ? $transactions[$currentYear . '-' . $month]->sum('amount') : 0;
+        if ($this->dateRange == '1day') {
+            $currentDate = Carbon::now()->subDays(7);
+            while ($currentDate <= Carbon::now()->today()) {
+                $this->months[] = $currentDate->format('Y-m-d');
+                $this->monthlyEarnings[] = $transactions->filter(function ($item) use ($currentDate) {
+                    return $item->created_at->format('Y-m-d') == $currentDate->format('Y-m-d');
+                })->sum('amount');
+                $currentDate->addDay(); // Move to the next day
+            }
+        } elseif ($this->dateRange == '7days') {
+            $currentDate = Carbon::now()->subDays(49);
+            while ($currentDate <= Carbon::now()->today()) {
+                $startOfWeek = $currentDate->copy()->startOfWeek();
+                $endOfWeek = $currentDate->copy()->endOfWeek();
+                $this->months[] = $startOfWeek->format('Y-m-d');
+                $this->monthlyEarnings[] = $transactions->filter(function ($item) use ($startOfWeek, $endOfWeek) {
+                    return $item->created_at >= $startOfWeek && $item->created_at <= $endOfWeek;
+                })->sum('amount');
+                $currentDate->addWeek(); // Move to the next week
+            }
+        } elseif ($this->dateRange == '1month') {
+            $currentDate = Carbon::now()->subDays(217);
+            while ($currentDate <= Carbon::now()->today()) {
+                $startOfWeek = $currentDate->copy()->startOfMonth();
+                $endOfWeek = $currentDate->copy()->endOfMonth();
+                $this->months[] = $startOfWeek->format('Y-m-d');
+                $this->monthlyEarnings[] = $transactions->filter(function ($item) use ($startOfWeek, $endOfWeek) {
+                    return $item->created_at >= $startOfWeek && $item->created_at <= $endOfWeek;
+                })->sum('amount');
+                $currentDate->addMonth(); // Move to the next week
+            }
+        } elseif ($this->dateRange == '12months') {
+            $currentDate = Carbon::now()->subDays(2700);
+            while ($currentDate <= Carbon::now()->today()) {
+                $startOfWeek = $currentDate->copy()->startOfYear();
+                $endOfWeek = $currentDate->copy()->endOfYear();
+                $this->months[] = $startOfWeek->format('Y-m-d');
+                $this->monthlyEarnings[] = $transactions->filter(function ($item) use ($startOfWeek, $endOfWeek) {
+                    return $item->created_at >= $startOfWeek && $item->created_at <= $endOfWeek;
+                })->sum('amount');
+                $currentDate->addYear(); // Move to the next week
+            }
+        } elseif ($this->dateRange == 'all') {
+            $currentDate = Carbon::now()->subDays(2700);
+            while ($currentDate <= Carbon::now()->today()) {
+                $startOfWeek = $currentDate->copy()->startOfYear();
+                $endOfWeek = $currentDate->copy()->endOfYear();
+                $this->months[] = $startOfWeek->format('Y-m-d');
+                $this->monthlyEarnings[] = $transactions->filter(function ($item) use ($startOfWeek, $endOfWeek) {
+                    return $item->created_at >= $startOfWeek && $item->created_at <= $endOfWeek;
+                })->sum('amount');
+                $currentDate->addYear(); // Move to the next week
+            }
         }
 
-        $this->months = ['Jan ' . date('Y'), 'Feb ' . date('Y'), 'Mar ' . date('Y'), 'Apr ' . date('Y'), 'May ' . date('Y'), 'Jun ' . date('Y'), 'Jul ' . date('Y'), 'Aug ' . date('Y'), 'Sep ' . date('Y'), 'Oct ' . date('Y'), 'Nov ' . date('Y'), 'Dec ' . date('Y')];
-
+        // Dispatch the browser event
         $this->dispatchBrowserEvent('earnings-updated', ['months' => json_encode($this->months), 'monthlyEarnings' => json_encode($this->monthlyEarnings)]);
         info('Dispatched');
     }
+
+
+
+
 
 
     public function render()
