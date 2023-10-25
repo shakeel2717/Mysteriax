@@ -18,7 +18,7 @@ class EarningType extends Component
     {
         $this->startDate = Carbon::now()->subYear(10);
         $this->endDate = Carbon::now();
-        $this->fetchReport();
+        $this->updatedDateRange();
     }
 
     public function updatedDateRange()
@@ -52,13 +52,13 @@ class EarningType extends Component
                 $this->endDate = Carbon::now();
                 break;
         }
+
         $this->fetchReport();
     }
 
 
     public function fetchReport()
     {
-        // Get all transactions from the Transaction model and group them by year and month
         $transactions = Transaction::where('recipient_user_id', auth()->user()->id)
             ->whereBetween('created_at', [$this->startDate, $this->endDate])
             ->orderBy('created_at', 'desc')
@@ -66,13 +66,12 @@ class EarningType extends Component
             ->groupBy(function ($item) {
                 return $item->created_at->format('Y-M');
             });
-        // dd($transactions);
+        $this->months = [];
 
-        // Loop through the 12 months of the year and populate the earnings array
         $this->months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-        $currentYear = date('Y'); // Get the current year
-        $this->monthlyEarnings = []; // Reset the array
+        $currentYear = date('Y');
+        $this->monthlyEarnings = [];
 
         foreach ($this->months as $month) {
 
@@ -81,10 +80,8 @@ class EarningType extends Component
 
         $this->months = ['Jan ' . date('Y'), 'Feb ' . date('Y'), 'Mar ' . date('Y'), 'Apr ' . date('Y'), 'May ' . date('Y'), 'Jun ' . date('Y'), 'Jul ' . date('Y'), 'Aug ' . date('Y'), 'Sep ' . date('Y'), 'Oct ' . date('Y'), 'Nov ' . date('Y'), 'Dec ' . date('Y')];
 
-        // $this->months and $this->monthlyEarnings convert these both to json and pass them to the browser event
         $this->dispatchBrowserEvent('earnings-updated', ['months' => json_encode($this->months), 'monthlyEarnings' => json_encode($this->monthlyEarnings)]);
-
-        // $this->dispatchBrowserEvent('name-updated', ['newName' => 5]);
+        info('Dispatched');
     }
 
 

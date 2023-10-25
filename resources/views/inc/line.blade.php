@@ -3,9 +3,24 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    setTimeout(function() {
+        var months = @json($months);
+        var monthlyEarnings = @json($monthlyEarnings);
+
+        var event = new CustomEvent('earnings-updated', {
+            detail: {
+                months: JSON.stringify(months),
+                monthlyEarnings: JSON.stringify(monthlyEarnings)
+            }
+        });
+        window.dispatchEvent(event);
+    }, 2000);
+</script>
+<script>
     let myLineChart = null;
     let myBarChart = null;
     let myPieChart = null;
+
 
     window.addEventListener('earnings-updated', function(event) {
         var months = JSON.parse(event.detail.months);
