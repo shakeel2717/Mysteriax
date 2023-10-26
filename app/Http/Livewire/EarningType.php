@@ -66,10 +66,10 @@ class EarningType extends Component
 
         if ($this->dateRange == 'all') {
             $this->startDate = Carbon::now()->subDays(2700);
-            $this->endDate = Carbon::today();
+            $this->endDate = Carbon::now();
             $this->customShowBox = false;
             $currentDate = Carbon::now()->subDays(2700);
-            while ($currentDate <= Carbon::now()->today()) {
+            while ($currentDate <= Carbon::now()->now()) {
                 $startOfYear = $currentDate->copy()->startOfYear();
                 $endOfYear = $currentDate->copy()->endOfYear();
                 $this->months[] = $startOfYear->format('Y-m-d');
@@ -80,11 +80,11 @@ class EarningType extends Component
             }
         } elseif ($this->dateRange == 'daily') {
             $this->startDate = Carbon::now()->subDays(1);
-            $this->endDate = Carbon::today();
+            $this->endDate = Carbon::now();
             $this->customShowBox = false;
             // this report is daily, so show hourly report for past 24 hours
             $currentDate = Carbon::now()->subDays(1);
-            while ($currentDate <= Carbon::now()->today()) {
+            while ($currentDate <= Carbon::now()->now()) {
                 $startOfHour = $currentDate->copy()->startOfHour();
                 $endOfHour = $currentDate->copy()->endOfHour();
                 $this->months[] = $startOfHour->format('Y-m-d H:i:s');
@@ -95,11 +95,11 @@ class EarningType extends Component
             }
         } elseif ($this->dateRange == '7days') {
             $this->startDate = Carbon::now()->subDays(7);
-            $this->endDate = Carbon::today();
+            $this->endDate = Carbon::now();
             $this->customShowBox = false;
             // this report is weekly, so show daily report for past 7 days
             $currentDate = Carbon::now()->subDays(7);
-            while ($currentDate <= Carbon::now()->today()) {
+            while ($currentDate <= Carbon::now()->now()) {
                 $startOfDay = $currentDate->copy()->startOfDay();
                 $endOfDay = $currentDate->copy()->endOfDay();
                 $this->months[] = $startOfDay->format('Y-m-d');
@@ -110,11 +110,11 @@ class EarningType extends Component
             }
         } elseif ($this->dateRange == '30days') {
             $this->startDate = Carbon::now()->subDays(30);
-            $this->endDate = Carbon::today();
+            $this->endDate = Carbon::now();
             $this->customShowBox = false;
             // this report is monthly, so show daily report for past 30 days
             $currentDate = Carbon::now()->subDays(30);
-            while ($currentDate <= Carbon::now()->today()) {
+            while ($currentDate <= Carbon::now()->now()) {
                 $startOfDay = $currentDate->copy()->startOfDay();
                 $endOfDay = $currentDate->copy()->endOfDay();
                 $this->months[] = $startOfDay->format('Y-m-d');
@@ -125,11 +125,11 @@ class EarningType extends Component
             }
         } elseif ($this->dateRange == '90days') {
             $this->startDate = Carbon::now()->subDays(90);
-            $this->endDate = Carbon::today();
+            $this->endDate = Carbon::now();
             $this->customShowBox = false;
             // this report is 3 months, so show daily report for past 30 days
             $currentDate = Carbon::now()->subDays(90);
-            while ($currentDate <= Carbon::now()->today()) {
+            while ($currentDate <= Carbon::now()->now()) {
                 $startOfDay = $currentDate->copy()->startOfDay();
                 $endOfDay = $currentDate->copy()->endOfDay();
                 $this->months[] = $startOfDay->format('Y-m-d');
