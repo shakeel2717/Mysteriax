@@ -69,8 +69,8 @@ class NotificationsController extends Controller
         if ($filter != null) {
             switch ($filter) {
                 case Notification::MESSAGES_FILTER:
-                    $types[] = Notification::NEW_COMMENT;
-                    $types[] = Notification::NEW_MESSAGE;
+                    $types[] = Notification::PPV_UNLOCK;
+                    // $types[] = Notification::PPV_UNLOCK;
                     break;
                 case Notification::LIKES_FILTER:
                     $types[] = Notification::NEW_REACTION;
@@ -80,7 +80,7 @@ class NotificationsController extends Controller
                     break;
                 case Notification::TIPS_FILTER:
                     $types[] = Notification::NEW_TIP;
-                    $types[] = Notification::PPV_UNLOCK;
+                    // $types[] = Notification::PPV_UNLOCK;
                     break;
                 case Notification::PROMOS_FILTER:
                     $types[] = Notification::PROMOS_FILTER;

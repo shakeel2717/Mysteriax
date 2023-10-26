@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Notification extends Model
 {
-    const MESSAGES_FILTER = 'messages';
+    const MESSAGES_FILTER = 'purchases';
     const LIKES_FILTER = 'likes';
     const SUBSCRIPTIONS_FILTER = 'subscriptions';
     const TIPS_FILTER = 'tips';

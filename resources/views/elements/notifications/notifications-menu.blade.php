@@ -9,8 +9,8 @@
         <a class="nav-item nav-link text-bold {{$activeType == $type ? 'active' : ''}}" href="{{route('my.notifications',['type' => $type])}}">
             <div class="d-flex justify-content-center">
                 @switch($type)
-                    @case('messages')
-                    @include('elements.icon',['icon'=>'chatbubbles-outline','centered' => false,'variant'=>'medium'])
+                    @case('purchases')
+                    @include('elements.icon',['icon'=>'card-outline','centered' => false,'variant'=>'medium'])
                     @break
                     @case('likes')
                     @include('elements.icon',['icon'=>'heart-outline','centered' => false,'variant'=>'medium'])
