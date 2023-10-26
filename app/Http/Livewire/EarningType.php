@@ -30,20 +30,39 @@ class EarningType extends Component
             // ->whereBetween('created_at', [$this->startDate, $this->endDate])
             ->orderBy('created_at', 'desc')
             ->get();
+
+        $this->months = [];
+        $this->monthlyEarnings = [];
+
         $this->startDate = Carbon::parse($this->customStartDate);
         $this->endDate = Carbon::parse($this->customEndDate);
 
         // this report is custom, so show daily report from start to end date
         $currentDate = $this->startDate;
+        // checking the difference in days
+        $diff = $currentDate->diffInDays($this->endDate);
+
         while ($currentDate <= $this->endDate) {
-            $startOfDay = $currentDate->copy()->startOfMonth();
-            $endOfDay = $currentDate->copy()->endOfMonth();
+            if ($diff < 30) {
+                $startOfDay = $currentDate->copy()->startOfDay();
+                $endOfDay = $currentDate->copy()->endOfDay();
+            } else {
+                $startOfDay = $currentDate->copy()->startOfMonth();
+                $endOfDay = $currentDate->copy()->endOfMonth();
+            }
             $this->months[] = $startOfDay->format('Y-m-d');
             $this->monthlyEarnings[] = $transactions->filter(function ($item) use ($startOfDay, $endOfDay) {
                 return $item->created_at >= $startOfDay && $item->created_at <= $endOfDay;
             })->sum('amount');
-            $currentDate->addMonth();
+            if ($diff < 30) {
+                $currentDate->addDay();
+            } else {
+                $currentDate->addMonth();
+            }
         }
+
+        $this->startDate = Carbon::parse($this->customStartDate);
+        $this->endDate = Carbon::parse($this->customEndDate);
 
         $this->dispatchBrowserEvent('earnings-updated', ['months' => json_encode($this->months), 'monthlyEarnings' => json_encode($this->monthlyEarnings)]);
     }
