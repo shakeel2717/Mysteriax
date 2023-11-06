@@ -1,3 +1,8 @@
+<div class="row">
+    <div class="col-md-12 text-right">
+        <a href="{{ route('my.settings',['type' => 'payments']) }}" class="btn btn-sm btn-primary">Payments History</a>
+    </div>
+</div>
 {{-- Paypal and stripe actual buttons --}}
 <div class="paymentOption paymentPP d-none">
     <form id="wallet-deposit" method="post" action="{{route('payment.initiatePayment')}}" >
