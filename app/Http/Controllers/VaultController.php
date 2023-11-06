@@ -15,17 +15,7 @@ class VaultController extends Controller
      */
     public function index()
     {
-        // checking if in public folder->voult folder this loggedin user has a folder with his username
-
-        $username = auth()->user()->username;
-        $path = public_path() . '/vault/' . $username;
-        if (!file_exists($path)) {
-            mkdir($path, 0777, true);
-        }
-
-        $files = scandir($path);
-        
-        return view('vault.index', compact('files'));
+        return view('vault.index');
     }
 
     /**
@@ -46,12 +36,6 @@ class VaultController extends Controller
      */
     public function store(Request $request, Post $model)
     {
-        $validatedData = $request->validate([
-            'attachment' => 'required|image|max:10240',
-        ]);
-        
-        $model->addMedia($request->file('attachment'))->toMediaCollection('images');
-
         return 'File uploaded successfully.';
     }
 

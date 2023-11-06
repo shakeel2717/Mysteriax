@@ -85,7 +85,7 @@
                 </a>
             </li> --}}
             <li class="nav-item">
-                <a href="{{route('my.vault.index')}}" class="nav-link {{Route::currentRouteName() == 'my.vault' ? 'active' : ''}} h-pill h-pill-primary d-flex justify-content-between">
+                <a href="{{route('my.vault.index')}}" class="nav-link {{Route::currentRouteName() == 'my.vault.index' ? 'active' : ''}} h-pill h-pill-primary d-flex justify-content-between">
                     <div class="d-flex justify-content-center align-items-center">
                         <div class="icon-wrapper d-flex justify-content-center align-items-center">
                             @include('elements.icon',['icon'=>'image-outline','variant'=>'large'])
