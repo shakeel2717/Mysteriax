@@ -20,7 +20,7 @@
                     </a>
                     <div class="dropdown-menu">
                         <!-- Dropdown menu links -->
-                        <a class="dropdown-item d-flex align-items-center tip-btn"
+                        {{-- <a class="dropdown-item d-flex align-items-center tip-btn"
                            data-toggle="modal"
                            data-target="#checkout-center"
                            data-type="chat-tip"
@@ -32,7 +32,7 @@
                            data-state="{{Auth::user()->state}}"
                            data-postcode="{{Auth::user()->postcode}}"
                            data-available-credit="{{Auth::user()->wallet->total}}"
-                        >{{__('Send a tip')}}</a>
+                        >{{__('Send a tip')}}</a> --}}
                         {{-- <a class="dropdown-item d-flex align-items-center conversation-profile-link" href="#" target="_blank">{{__('Go to profile')}}</a> --}}
                         {{-- <div class="dropdown-divider"></div> --}}
                         <a class="dropdown-item unfollow-btn" href="javascript:void(0);">{{__('Unfollow')}}</a>
