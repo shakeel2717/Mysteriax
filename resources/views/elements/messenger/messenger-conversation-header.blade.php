@@ -3,11 +3,15 @@
         <div class="d-flex px-1">
             <div class="col-10 pl-0 d-flex">
                 <div class="">
-                    <img class="conversation-header-avatar" src="{{asset('/img/no-avatar.png')}}" />
+                    <a class="conversation-profile-link" href="">
+                        <img class="conversation-header-avatar" src="{{asset('/img/no-avatar.png')}}" />
+                    </a>
                 </div>
-                <div class="mt-2 ml-3 conversation-header-user text-truncate">
-
-                </div>
+                <a class="conversation-profile-link" href="">
+                    <div class="mt-2 ml-3 conversation-header-user text-truncate">
+    
+                    </div>
+                </a>
             </div>
             <div class="col-2 pt-2 pr-0 d-flex justify-content-end">
                 <div class="dropdown {{GenericHelper::getSiteDirection() == 'rtl' ? 'dropright' : 'dropleft'}}">
@@ -29,8 +33,8 @@
                            data-postcode="{{Auth::user()->postcode}}"
                            data-available-credit="{{Auth::user()->wallet->total}}"
                         >{{__('Send a tip')}}</a>
-                        <a class="dropdown-item d-flex align-items-center conversation-profile-link" href="#" target="_blank">{{__('Go to profile')}}</a>
-                        <div class="dropdown-divider"></div>
+                        {{-- <a class="dropdown-item d-flex align-items-center conversation-profile-link" href="#" target="_blank">{{__('Go to profile')}}</a> --}}
+                        {{-- <div class="dropdown-divider"></div> --}}
                         <a class="dropdown-item unfollow-btn" href="javascript:void(0);">{{__('Unfollow')}}</a>
                         <a class="dropdown-item block-btn" href="javascript:void(0);">{{__('Block')}}</a>
                         <a class="dropdown-item report-btn" href="javascript:void(0);">{{__('Report')}}</a>
