@@ -110,7 +110,7 @@
                         <div class="icon-wrapper d-flex justify-content-center align-items-center">
                             @include('elements.icon',['icon'=>'people-circle-outline','variant'=>'large'])
                         </div>
-                        <span class="d-none d-md-block d-xl-block d-lg-block ml-2 text-truncate side-menu-label">{{__('Subscriptions')}}</span>
+                        <span class="d-none d-md-block d-xl-block d-lg-block ml-2 text-truncate side-menu-label">{{__('Settings')}}</span>
                     </div>
                 </a>
             </li>

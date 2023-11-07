@@ -1,11 +1,11 @@
-<div class="d-flex flex-column flex-md-row">
+<div class="d-flex flex-md-row">
     <div class="mt-1">
         <span
             data-toggle="tooltip" data-placement="bottom" title="{{__('Add files')}}."
             class="h-pill h-pill-primary file-upload-button {{!GenericHelper::isUserVerified() && getSetting('site.enforce_user_identity_checks') ? 'disabled' : ''}}"
         >
             @include('elements.icon',['icon'=>'document-outline','variant'=>'medium','centered'=>true, 'classes' => 'mr-1'])
-            <span class="">{{__("Files")}}</span>
+            <span class="d-none d-md-block">{{__("Content")}}</span>
         </span>
     </div>
     <div class="mt-1 ml-0 ml-md-2">
@@ -16,7 +16,6 @@
         >
             @include('elements.icon',['icon'=>'logo-usd','variant'=>'medium','centered'=>true, 'classes' => 'mr-1'])
             <span class="d-none d-md-block">{{__("Price")}}</span>
-            <span class="d-block d-md-none">{{__("Price")}}</span>
             <span class="post-price-label ml-1">{{(isset($post) && $post) > 0 ? "(".config('app.site.currency_symbol')."$post->price".(config('app.site.currency_symbol') ? '' : config('app.site.currency_code')).")" : ''}}</span>
         </span>
     </div>
@@ -46,7 +45,7 @@
         <div class="mt-1 ml-0 ml-md-2">
             <span class="h-pill h-pill-primary" data-toggle="tooltip" data-placement="bottom" title="{{__('Schedule your post release or deletion date.')}}" onclick="{{"PostCreate.showPostScheduleDialog();"}}">
                 @include('elements.icon',['icon'=>'alarm-outline','variant'=>'medium','centered'=>true, 'classes' => 'mr-1'])
-                <span class="">{{__("Scheduling")}}</span>
+                <span class="d-none d-md-block">{{__("Scheduling")}}</span>
             </span>
         </div>
     @endif

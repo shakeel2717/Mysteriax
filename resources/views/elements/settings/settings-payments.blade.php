@@ -1,3 +1,8 @@
+<div class="row">
+    <div class="col-md-12 mt-4 ml-4">
+        <a href="{{ route('my.settings',['type' => 'wallet']) }}" class="btn btn-sm btn-primary">Go Back</a>
+    </div>
+</div>
 @if(count($payments))
     <div class="table-wrapper ">
         <div class="">
