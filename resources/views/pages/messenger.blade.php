@@ -9,6 +9,15 @@
             .contact-box {
                 justify-content: left !important;
             }
+
+            .conversation-content {
+                padding-bottom: 120px !important;
+            }
+
+            .conversation-writeup {
+                position: fixed;
+                bottom: 70px;
+            }
         }
     </style>
     {!! Minify::stylesheet([
@@ -100,7 +109,7 @@
                             @endif
                         </div>
                     </div>
-                    <div 
+                    <div
                         class="col-12 col-xl-9 col-lg-9 col-md-9 col-sm-12 col-xs-12 border conversation-wrapper rounded-right p-0 d-none d-md-flex flex-column min-vh-100">
                         @include('elements.message-alert')
                         @include('elements.messenger.messenger-conversation-header')
@@ -111,7 +120,7 @@
                         </div>
                         <div class="dropzone-previews dropzone w-100 ppl-0 pr-0 pt-1 pb-1"></div>
                         <div
-                            class="conversation-writeup pt-1 pb-1 d-flex align-items-center mb-1 {{ !$lastContactID ? 'hidden' : '' }}">
+                            class="conversation-writeup pt-1 pb-1 d-flex align-items-center mb-1 neutral-bg {{ !$lastContactID ? 'hidden' : '' }}">
                             <div class="messenger-buttons-wrapper d-flex pl-2">
                                 <button
                                     class="btn btn-outline-primary btn-rounded-icon messenger-button attach-file mx-2 file-upload-button to-tooltip"
