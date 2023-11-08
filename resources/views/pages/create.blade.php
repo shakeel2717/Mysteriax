@@ -64,9 +64,9 @@
                                     </div>
                                 @endif
                                 @if(!GenericHelper::isUserVerified() && getSetting('site.enforce_user_identity_checks'))
-                                    <button class="btn btn-outline-primary disabled mb-0">{{__('Save')}}</button>
+                                    <button class="btn btn-outline-primary disabled mb-0">{{__('Upload')}}</button>
                                 @else
-                                    <button class="btn btn-outline-primary post-create-button mb-0">{{__('Save')}}</button>
+                                    <button class="btn btn-outline-primary post-create-button mb-0">{{__('Upload')}}</button>
                                 @endif
                             </div>
                         </div>
