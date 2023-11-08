@@ -16,9 +16,9 @@ function contactElement(contact){
     const avatar = contact.receiverID === user.user_id ? contact.senderAvatar : contact.receiverAvatar;
     const name = contact.receiverID === user.user_id ? contact.senderName : contact.receiverName;
     return `
-      <div class="col-12 d-flex pt-2 pb-2 contact-box contact-${contact.contactID}" onclick="messenger.fetchConversation(${contact.contactID})">
+      <div class="col-12 d-flex align-items-center pt-2 pb-2 contact-box contact-${contact.contactID}" onclick="messenger.fetchConversation(${contact.contactID})">
         <img src="${ avatar }" class="contact-avatar rounded-circle"/>
-        <div class="m-0 ml-md-3 d-none d-lg-flex d-md-flex d-xl-flex justify-content-center flex-column text-truncate">
+        <div class="m-0 ml-3 d-flex justify-content-center flex-column text-truncate">
             <div class="m-0 text-truncate overflow-hidden contact-name ${contact.lastMessageSenderID !== user.user_id && contact.isSeen === 0 ? 'font-weight-bold' : ''}">${filterXSS(name)}</div>
             <small class="message-excerpt-holder d-flex text-truncate">
                 <span class="text-muted mr-1 ${contact.lastMessageSenderID !== user.user_id ? 'd-none' : ''}"> ${trans('You')}: </span>

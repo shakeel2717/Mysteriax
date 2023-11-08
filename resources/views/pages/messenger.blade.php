@@ -3,6 +3,14 @@
 @section('page_title', __('Messenger'))
 
 @section('styles')
+    <style>
+        /* medie for mobile devices only */
+        @media (max-width: 767px) {
+            .contact-box {
+                justify-content: left !important;
+            }
+        }
+    </style>
     {!! Minify::stylesheet([
         '/libs/@selectize/selectize/dist/css/selectize.css',
         '/libs/@selectize/selectize/dist/css/selectize.bootstrap4.css',
@@ -30,6 +38,22 @@
         '/js/pages/checkout.js',
         '/libs/pusher-js-auth/lib/pusher-auth.js',
     ])->withFullUrl() !!}
+    <script>
+        // checking jquery is working or not
+        function backButtonPressed() {
+            $('.conversations-wrapper').removeClass('d-none');
+            $('.conversations-wrapper').addClass('d-block');
+            $('.conversation-wrapper').removeClass('d-flex');
+            $('.conversation-wrapper').addClass('d-none');
+        }
+
+        function showNewMessageBox() {
+            $('.conversation-wrapper').removeClass('d-none');
+            $('.conversation-wrapper').addClass('d-flex');
+            $('.conversations-wrapper').removeClass('d-block');
+            $('.conversations-wrapper').addClass('d-none');
+        }
+    </script>
 @stop
 
 @section('content')
@@ -47,7 +71,7 @@
             <div class="container messenger min-vh-100">
                 <div class="row min-vh-100">
                     <div
-                        class="col-3 col-xl-3 col-lg-3 col-md-3 col-sm-3 col-xs-2 border border-right-0 border-left-0 rounded-left conversations-wrapper min-vh-100 overflow-hidden border-top ">
+                        class="col-12 col-xl-3 col-lg-3 col-md-3 col-sm-12 col-xs-12 border border-right-0 border-left-0 rounded-left conversations-wrapper d-md-block min-vh-100 overflow-hidden border-top ">
                         <div class="d-flex justify-content-center justify-content-md-between pt-3 pr-1 pb-2">
                             <h5
                                 class="d-none d-md-block text-truncate pl-3 pl-md-0 text-bold {{ Cookie::get('app_theme') == null ? (getSetting('site.default_user_theme') == 'dark' ? '' : 'text-dark-r') : (Cookie::get('app_theme') == 'dark' ? '' : 'text-dark-r') }}">
@@ -56,7 +80,8 @@
                                 @if (!count($availableContacts)) data-original-title="{{ trans_choice('Before sending a new message, please subscribe to a creator a follow a free profile.', ['user' => 0]) }}"
                                   @else
                                     data-original-title="{{ trans_choice('Send a new message', ['user' => 0]) }}" @endif>
-                                <a title="" class="pointer-cursor new-conversation-toggle"
+                                <a title="" onclick="showNewMessageBox()"
+                                    class="pointer-cursor new-conversation-toggle"
                                     data-original-title="{{ trans_choice('Send a new message', ['user' => 0]) }}">
                                     <div class="mt-0 h5">@include('elements.icon', [
                                         'icon' => 'create-outline',
@@ -68,20 +93,21 @@
                         <div class="conversations-list">
                             @if ($lastContactID == false)
                                 <div class="d-flex mt-3 mt-md-2 pl-3 pl-md-0 mb-3 pl-md-0">
-                                    <span>{{ __('Click the text bubble to send a new message.') }}</span></div>
+                                    <span>{{ __('Click the text bubble to send a new message.') }}</span>
+                                </div>
                             @else
                                 @include('elements.preloading.messenger-contact-box', ['limit' => 3])
                             @endif
                         </div>
                     </div>
                     <div
-                        class="col-9 col-xl-9 col-lg-9 col-md-9 col-sm-9 col-xs-10 border conversation-wrapper rounded-right p-0 d-flex flex-column min-vh-100">
+                        class="col-12 col-xl-9 col-lg-9 col-md-9 col-sm-12 col-xs-12 border conversation-wrapper rounded-right p-0 d-none d-md-block flex-column min-vh-100">
                         @include('elements.message-alert')
                         @include('elements.messenger.messenger-conversation-header')
                         @include('elements.messenger.messenger-new-conversation-header')
                         @include('elements.preloading.messenger-conversation-header-box')
                         @include('elements.preloading.messenger-conversation-box')
-                        <div class="conversation-content pt-4 pb-1 px-3 flex-fill">
+                        <div class="conversation-content pt-4 pb-1 px-3 flex-fill w-100">
                         </div>
                         <div class="dropzone-previews dropzone w-100 ppl-0 pr-0 pt-1 pb-1"></div>
                         <div
@@ -126,16 +152,14 @@
                                         </div>
                                     </button>
                                 @endif
-                                <button
-                                    class="btn btn-outline-primary btn-rounded-icon tip-btn mr-2 to-tooltip"
+                                <button class="btn btn-outline-primary btn-rounded-icon tip-btn mr-2 to-tooltip"
                                     data-toggle="modal" data-target="#checkout-center" data-type="chat-tip"
                                     data-first-name="{{ Auth::user()->first_name }}"
                                     data-last-name="{{ Auth::user()->last_name }}"
                                     data-billing-address="{{ Auth::user()->billing_address }}"
                                     data-country="{{ Auth::user()->country }}" data-city="{{ Auth::user()->city }}"
                                     data-state="{{ Auth::user()->state }}" data-postcode="{{ Auth::user()->postcode }}"
-                                    data-available-credit="{{ Auth::user()->wallet->total }}"
-                                    data-placement="top"
+                                    data-available-credit="{{ Auth::user()->wallet->total }}" data-placement="top"
                                     title="{{ __('Send a tip') }}">
                                     <div class="d-flex justify-content-center align-items-center">
                                         @include('elements.icon', [

@@ -2,21 +2,28 @@
     <div class="details-holder border-bottom">
         <div class="d-flex px-1">
             <div class="col-10 pl-0 d-flex">
-                <div class="">
+                <div class="d-flex align-items-center">
+                    <a class="d-md-none" href="javascript:void(0);" onclick="backButtonPressed()">
+                        @include('elements.icon', [
+                            'icon' => 'chevron-back-outline',
+                            'classes' => 'h3 mb-0',
+                        ])
+                    </a>
                     <a class="conversation-profile-link" href="">
-                        <img class="conversation-header-avatar" src="{{asset('/img/no-avatar.png')}}" />
+                        <img class="conversation-header-avatar" src="{{ asset('/img/no-avatar.png') }}" />
                     </a>
                 </div>
                 <a class="conversation-profile-link" href="">
                     <div class="mt-2 ml-3 conversation-header-user text-truncate">
-    
+
                     </div>
                 </a>
             </div>
             <div class="col-2 pt-2 pr-0 d-flex justify-content-end">
-                <div class="dropdown {{GenericHelper::getSiteDirection() == 'rtl' ? 'dropright' : 'dropleft'}}">
-                    <a class="btn btn-sm btn-outline-primary dropdown-toggle px-2 py-1" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                        @include('elements.icon',['icon'=>'ellipsis-horizontal-outline'])
+                <div class="dropdown {{ GenericHelper::getSiteDirection() == 'rtl' ? 'dropright' : 'dropleft' }}">
+                    <a class="btn btn-sm btn-outline-primary dropdown-toggle px-2 py-1" data-toggle="dropdown"
+                        href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                        @include('elements.icon', ['icon' => 'ellipsis-horizontal-outline'])
                     </a>
                     <div class="dropdown-menu">
                         <!-- Dropdown menu links -->
@@ -35,9 +42,9 @@
                         >{{__('Send a tip')}}</a> --}}
                         {{-- <a class="dropdown-item d-flex align-items-center conversation-profile-link" href="#" target="_blank">{{__('Go to profile')}}</a> --}}
                         {{-- <div class="dropdown-divider"></div> --}}
-                        <a class="dropdown-item unfollow-btn" href="javascript:void(0);">{{__('Unfollow')}}</a>
-                        <a class="dropdown-item block-btn" href="javascript:void(0);">{{__('Block')}}</a>
-                        <a class="dropdown-item report-btn" href="javascript:void(0);">{{__('Report')}}</a>
+                        <a class="dropdown-item unfollow-btn" href="javascript:void(0);">{{ __('Unfollow') }}</a>
+                        <a class="dropdown-item block-btn" href="javascript:void(0);">{{ __('Block') }}</a>
+                        <a class="dropdown-item report-btn" href="javascript:void(0);">{{ __('Report') }}</a>
                     </div>
                 </div>
             </div>
