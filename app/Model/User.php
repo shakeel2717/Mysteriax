@@ -136,17 +136,30 @@ class User extends \TCG\Voyager\Models\User implements MustVerifyEmail
 
     public function getTipsEarnings()
     {
-        return Transaction::where('recipient_user_id', $this->id)->where('type','tip')->sum('amount');
+        return Transaction::where('recipient_user_id', $this->id)->where('type', 'tip')->sum('amount');
     }
 
     public function getPurchaseEarnings()
     {
-        return Transaction::where('recipient_user_id', $this->id)->where('type','post-unlock')->sum('amount');
+        return Transaction::where('recipient_user_id', $this->id)->where('type', 'post-unlock')->sum('amount');
     }
 
     public function getSubscriptionEarnings()
     {
-        return Transaction::where('recipient_user_id', $this->id)->where('type','one-month-subscription')->sum('amount');
+        return Transaction::where('recipient_user_id', $this->id)->where('type', 'one-month-subscription')->sum('amount');
+    }
+
+    public function getIsCreator()
+    {
+        $user = User::find($this->id);
+        $verify = $user->verification()->firstOr(function(){
+            return false;
+        });
+        if ($verify && $verify->status == 'verified') {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 

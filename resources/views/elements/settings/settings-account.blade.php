@@ -310,7 +310,7 @@
     </div>
 @endif
 
-<form class="verify-form" action="{{route('my.settings.verify.save')}}" method="POST">
+<form class="verify-form mb-5" action="{{route('my.settings.verify.save')}}" method="POST">
     @csrf
     <p>{{__('In order to get verified and receive your badge, please take care of the following steps:')}}</p>
     <div class="d-flex align-items-center mb-1 ml-4">
