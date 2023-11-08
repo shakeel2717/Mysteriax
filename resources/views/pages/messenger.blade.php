@@ -100,8 +100,8 @@
                             @endif
                         </div>
                     </div>
-                    <div
-                        class="col-12 col-xl-9 col-lg-9 col-md-9 col-sm-12 col-xs-12 border conversation-wrapper rounded-right p-0 d-none d-md-block flex-column min-vh-100">
+                    <div 
+                        class="col-12 col-xl-9 col-lg-9 col-md-9 col-sm-12 col-xs-12 border conversation-wrapper rounded-right p-0 d-none d-md-flex flex-column min-vh-100">
                         @include('elements.message-alert')
                         @include('elements.messenger.messenger-conversation-header')
                         @include('elements.messenger.messenger-new-conversation-header')
