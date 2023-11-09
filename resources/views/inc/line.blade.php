@@ -3,6 +3,10 @@
         max-height: 400px;
         min-height: 400px;
     }
+    #myPieChart{
+        max-height: 250px;
+        min-height: 250px;
+    }
 </style>
 <div>
     <canvas id="myLineChart" height="400px"></canvas>
