@@ -78,7 +78,7 @@
             </ul>
 
             <!-- Tab panes -->
-            <div class="tab-content p-0">
+            <div class="tab-content">
                 <div id="home" class="container tab-pane active"><br>
                     <h5 class="card-title">LINE GRAPH</h5>
                     <div class="row">
@@ -121,32 +121,29 @@
     <div class="col-md-12">
         <div class="px-4 mt-4">
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-12">
                     <div class="card">
                         <div class="card-body shadow">
-                            <h5 class="card-title">Tips</h5>
-                            <h2 class="card-title mb-0">
-                                ${{ number_format(auth()->user()->myTransactions()->where('type', 'tip')->whereBetween('created_at', [$startDate, $endDate])->sum('amount'),2) }}
-                            </h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body shadow">
-                            <h5 class="card-title">Purchases</h5>
-                            <h2 class="card-title mb-0">
-                                ${{ number_format(auth()->user()->myTransactions()->where('type', 'post-unlock')->whereBetween('created_at', [$startDate, $endDate])->sum('amount'),2) }}
-                            </h2>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body shadow">
-                            <h5 class="card-title">Subscriptions</h5>
-                            <h2 class="card-title mb-0">
-                                ${{ number_format(auth()->user()->myTransactions()->where('type', 'one-month-subscription')->whereBetween('created_at', [$startDate, $endDate])->sum('amount'),2) }}
+                            <div class="row">
+                                <div class="col-4 p-0">
+                                    <h6 class="card-title">Tips</h6>
+                                    <h5 class="card-title mb-0">
+                                        ${{ number_format(auth()->user()->myTransactions()->where('type', 'tip')->whereBetween('created_at', [$startDate, $endDate])->sum('amount'),2) }}
+                                    </h5>
+                                </div>
+                                <div class="col-4 p-0">
+                                    <h6 class="card-title">Purchases</h6>
+                                    <h5 class="card-title mb-0">
+                                        ${{ number_format(auth()->user()->myTransactions()->where('type', 'post-unlock')->whereBetween('created_at', [$startDate, $endDate])->sum('amount'),2) }}
+                                    </h5>
+                                </div>
+                                <div class="col-4 p-0">
+                                    <h6 class="card-title">Subscriptions</h6>
+                                    <h5 class="card-title mb-0">
+                                        ${{ number_format(auth()->user()->myTransactions()->where('type', 'one-month-subscription')->whereBetween('created_at', [$startDate, $endDate])->sum('amount'),2) }}
+                                    </h5>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
