@@ -1,5 +1,11 @@
+<style>
+    canvas{
+        max-height: 400px;
+        min-height: 400px;
+    }
+</style>
 <div>
-    <canvas id="myLineChart"></canvas>
+    <canvas id="myLineChart" height="400px"></canvas>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>

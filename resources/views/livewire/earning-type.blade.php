@@ -78,9 +78,9 @@
             </ul>
 
             <!-- Tab panes -->
-            <div class="tab-content">
+            <div class="tab-content p-0">
                 <div id="home" class="container tab-pane active"><br>
-                    <h3>LINE GRAPH</h3>
+                    <h5 class="card-title">LINE GRAPH</h5>
                     <div class="row">
                         <div class="col-md-12">
                             <div class="card">
@@ -92,7 +92,7 @@
                     </div>
                 </div>
                 <div id="menu1" class="container tab-pane fade"><br>
-                    <h3>BAR GRAPH</h3>
+                    <h5 class="card-title">BAR GRAPH</h5>
                     <div class="row">
                         <div class="col-md-12">
                             <div class="card">
@@ -104,7 +104,7 @@
                     </div>
                 </div>
                 <div id="menu2" class="container tab-pane fade"><br>
-                    <h3>PIE CHART</h3>
+                    <h5 class="card-title">PIE CHART</h5>
                     <div class="row">
                         <div class="col-md-12">
                             <div class="card">
@@ -155,7 +155,9 @@
     </div>
     <div class="col-md-12">
         <div class="px-4 mb-5 mt-4">
+            <hr>
             <h4 class="text-muted">History of Purchase</h4>
+            <hr>
             <div class="table-responsive">
                 <table class="table">
                     <thead>
