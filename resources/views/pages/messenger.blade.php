@@ -136,11 +136,11 @@
                                     <input type="hidden" name="receiverID" id="receiverID" value="">
                                     <textarea name="message" class="form-control messageBoxInput dropzone" placeholder="{{ __('Write a message..') }}"
                                         onkeyup="messenger.textAreaAdjust(this)"></textarea>
-                                    <div
+                                    {{-- <div
                                         class="input-group-append z-index-3 d-flex align-items-center justify-content-center">
                                         <span class="h-pill h-pill-primary rounded mr-3 trigger" data-toggle="tooltip"
                                             data-placement="top" title="Like">😊</span>
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </form>
                             <div class="messenger-buttons-wrapper details-holder d-flex">
