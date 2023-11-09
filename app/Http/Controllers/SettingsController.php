@@ -46,7 +46,7 @@ class SettingsController extends Controller
         'wallet' => ['heading' => 'Your payments & wallet', 'icon' => 'wallet'],
         'payments' => ['heading' => 'Your payments & wallet', 'icon' => 'card'],
         // 'rates' => ['heading' => 'Prices & Bundles', 'icon' => 'layers'],
-        // 'subscriptions' => ['heading' => 'Your active subscriptions', 'icon' => 'people'],
+        'subscriptions' => ['heading' => 'Your active subscriptions', 'icon' => 'people'],
         'referrals' => ['heading' => 'Invite other people to earn more', 'icon' => 'person-add'],
         // 'notifications' => ['heading' => 'Your email notifications settings', 'icon' => 'notifications'],
         // 'privacy' => ['heading' => 'Your privacy and safety matters', 'icon' => 'shield'],
@@ -103,6 +103,28 @@ class SettingsController extends Controller
                 ]);
                 $activeWalletTab = $request->get('active');
                 $data['activeTab'] = $activeWalletTab != null ? $activeWalletTab : 'deposit';
+                break;
+
+            case 'subscriptions':
+
+                // Default tab - active subs
+                $activeSubsTab = 'subscriptions';
+                if ($request->get('active')) {
+                    $activeSubsTab = $request->get('active');
+                }
+
+                // Get either active (own) subs or subs paid for
+                if ($activeSubsTab == 'subscriptions') {
+                    $subscriptions = Subscription::with(['creator'])->where('sender_user_id', $userID)->orderBy('id', 'desc')->paginate(6);
+                } else {
+                    $subscriptions = Subscription::with(['creator'])->where('recipient_user_id', $userID)->orderBy('id', 'desc')->paginate(6);
+                }
+                $subscribersCount = Subscription::with(['creator'])->where('recipient_user_id', $userID)->orderBy('id', 'desc')->count();
+
+                $data['subscriptions'] = $subscriptions;
+                $data['subscribersCount'] = $subscribersCount;
+                $data['activeSubsTab'] = $activeSubsTab;
+
                 break;
 
             case 'subscribers':

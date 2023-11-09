@@ -5,6 +5,8 @@
                 @switch($route)
                     @case('payments')
                     @break
+                    @case('subscriptions')
+                    @break
                     @default
                         <a href="{{ route('my.settings', ['type' => $route]) }}"
                             class="{{ $activeSettingsTab == $route ? 'active' : '' }} list-group-item list-group-item-action d-flex justify-content-between">
