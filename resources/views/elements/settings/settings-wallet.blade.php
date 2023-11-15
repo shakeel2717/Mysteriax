@@ -24,6 +24,8 @@
 {{-- Actual form --}}
 <div>
     @include('elements/message-alert', ['classes' =>'mb-2'])
+    @include('inc.stipe-connect')
+    <br>
 
     <div class="alert alert-primary text-white font-weight-bold" role="alert">
         <div class="d-flex"><h3 class="font-weight-bold wallet-total-amount">{{\App\Providers\SettingsServiceProvider::getWebsiteCurrencySymbol()}}{{number_format(Auth::user()->wallet->total, 2, '.', '')}}</h3> <small class="ml-2"></small> </div>

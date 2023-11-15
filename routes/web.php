@@ -198,6 +198,16 @@ Route::group(['middleware' => ['auth','verified','2fa']], function () {
     Route::group(['prefix' => 'suggestions', 'as' => 'suggestions.'], function () {
         Route::post('/generate', ['uses' => 'AiController@generateSuggestion', 'as'   => 'generate']);
     });
+
+    Route::get('stripe/connect', [
+        'as'   => 'stripe.connect',
+        'uses' => 'PaymentsController@stripeConnect',
+    ]);
+
+    Route::get('stripe/connected', [
+        'as'   => 'stripe.connected',
+        'uses' => 'PaymentsController@stripeConnected',
+    ]);
 });
 
 // 2FA related routes

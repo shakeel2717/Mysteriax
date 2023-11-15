@@ -12,6 +12,7 @@ use App\Providers\PaymentRequestServiceProvider;
 use App\Providers\PaymentsServiceProvider;
 use App\Providers\PostsHelperServiceProvider;
 use App\User;
+use Stripe\Stripe;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -32,7 +33,8 @@ class PaymentsController extends Controller
         $this->paymentHandler = $paymentHandler;
     }
 
-    public function paymentInitiateValidator(CreateTransactionRequest $request){
+    public function paymentInitiateValidator(CreateTransactionRequest $request)
+    {
         return response()->json([
             'status' => 200
         ], 200);
@@ -71,7 +73,7 @@ class PaymentsController extends Controller
                 return $this->paymentHandler->redirectByTransaction($transaction, $errorMessage);
             }
 
-            if(!$this->paymentHandler->validateTransaction($transaction, $recipientUser)) {
+            if (!$this->paymentHandler->validateTransaction($transaction, $recipientUser)) {
                 return $this->paymentHandler->redirectByTransaction($transaction, $errorMessage);
             }
 
@@ -109,24 +111,24 @@ class PaymentsController extends Controller
                     $postId = $transaction['post_id'];
                     $streamId = $transaction['stream_id'];
                     $messageId = $transaction['user_message_id'];
-                    if($recipientUser->id === $transaction['sender_user_id']) {
+                    if ($recipientUser->id === $transaction['sender_user_id']) {
                         return $this->paymentHandler->redirectByTransaction(
                             $transaction,
                             $errorMessage = __('Cannot pay to yourself.')
                         );
                     }
 
-                    if($transactionType === Transaction::POST_UNLOCK && PostsHelperServiceProvider::userPaidForPost($userId, $postId)){
+                    if ($transactionType === Transaction::POST_UNLOCK && PostsHelperServiceProvider::userPaidForPost($userId, $postId)) {
                         return $this->paymentHandler->redirectByTransaction(
                             $transaction,
                             $errorMessage = __('You already unlocked this post.')
                         );
-                    } elseif($transactionType === Transaction::STREAM_ACCESS && PostsHelperServiceProvider::userPaidForStream($userId, $streamId)){
+                    } elseif ($transactionType === Transaction::STREAM_ACCESS && PostsHelperServiceProvider::userPaidForStream($userId, $streamId)) {
                         return $this->paymentHandler->redirectByTransaction(
                             $transaction,
                             $errorMessage = __('You already paid for this streaming')
                         );
-                    } elseif($transactionType === Transaction::MESSAGE_UNLOCK && PostsHelperServiceProvider::userPaidForMessage($userId, $messageId)){
+                    } elseif ($transactionType === Transaction::MESSAGE_UNLOCK && PostsHelperServiceProvider::userPaidForMessage($userId, $messageId)) {
                         return $this->paymentHandler->redirectByTransaction(
                             $transaction,
                             $errorMessage = __('You already paid access for this message')
@@ -137,13 +139,13 @@ class PaymentsController extends Controller
                         $redirectLink = $this->paymentHandler->initiateOneTimePaypalTransaction($transaction);
                     } elseif ($transaction['payment_provider'] == Transaction::CREDIT_PROVIDER) {
                         $this->paymentHandler->generateOneTimeCreditTransaction($transaction);
-                    } elseif($transaction['payment_provider'] == Transaction::COINBASE_PROVIDER){
+                    } elseif ($transaction['payment_provider'] == Transaction::COINBASE_PROVIDER) {
                         $redirectLink = $this->paymentHandler->generateCoinBaseTransaction($transaction);
-                    } elseif($transaction['payment_provider'] == Transaction::NOWPAYMENTS_PROVIDER) {
+                    } elseif ($transaction['payment_provider'] == Transaction::NOWPAYMENTS_PROVIDER) {
                         $redirectLink = $this->paymentHandler->generateNowPaymentsTransaction($transaction);
-                    } elseif($transaction['payment_provider'] == Transaction::CCBILL_PROVIDER) {
+                    } elseif ($transaction['payment_provider'] == Transaction::CCBILL_PROVIDER) {
                         $redirectLink = $this->paymentHandler->generateCCBillOneTimePaymentTransaction($transaction);
-                    } elseif($transaction['payment_provider'] == Transaction::PAYSTACK_PROVIDER) {
+                    } elseif ($transaction['payment_provider'] == Transaction::PAYSTACK_PROVIDER) {
                         $redirectLink = $this->paymentHandler->generatePaystackTransaction($transaction, Auth::user()->email);
                     }
                     break;
@@ -151,13 +153,13 @@ class PaymentsController extends Controller
                     $transaction['recipient_user_id'] = Auth::user()->id;
                     if ($transaction['payment_provider'] == Transaction::PAYPAL_PROVIDER) {
                         $redirectLink = $this->paymentHandler->initiateOneTimePaypalTransaction($transaction);
-                    } elseif($transaction['payment_provider'] == Transaction::COINBASE_PROVIDER){
+                    } elseif ($transaction['payment_provider'] == Transaction::COINBASE_PROVIDER) {
                         $redirectLink = $this->paymentHandler->generateCoinBaseTransaction($transaction);
-                    } elseif($transaction['payment_provider'] == Transaction::NOWPAYMENTS_PROVIDER) {
+                    } elseif ($transaction['payment_provider'] == Transaction::NOWPAYMENTS_PROVIDER) {
                         $redirectLink = $this->paymentHandler->generateNowPaymentsTransaction($transaction);
-                    } elseif($transaction['payment_provider'] == Transaction::CCBILL_PROVIDER) {
+                    } elseif ($transaction['payment_provider'] == Transaction::CCBILL_PROVIDER) {
                         $redirectLink = $this->paymentHandler->generateCCBillOneTimePaymentTransaction($transaction);
-                    } elseif($transaction['payment_provider'] == Transaction::PAYSTACK_PROVIDER) {
+                    } elseif ($transaction['payment_provider'] == Transaction::PAYSTACK_PROVIDER) {
                         $redirectLink = $this->paymentHandler->generatePaystackTransaction($transaction, Auth::user()->email);
                     }
                     break;
@@ -165,7 +167,7 @@ class PaymentsController extends Controller
                 case Transaction::THREE_MONTHS_SUBSCRIPTION:
                 case Transaction::SIX_MONTHS_SUBSCRIPTION:
                 case Transaction::YEARLY_SUBSCRIPTION:
-                    if($recipientUser->id === $transaction['sender_user_id']) {
+                    if ($recipientUser->id === $transaction['sender_user_id']) {
                         return $this->paymentHandler->redirectByTransaction(
                             $transaction,
                             $errorMessage = __('Cannot subscribe to yourself.')
@@ -193,8 +195,10 @@ class PaymentsController extends Controller
             }
             $transaction->save();
 
-            if ($transaction['payment_provider'] === Transaction::CREDIT_PROVIDER
-                && $transaction['status'] === Transaction::APPROVED_STATUS) {
+            if (
+                $transaction['payment_provider'] === Transaction::CREDIT_PROVIDER
+                && $transaction['status'] === Transaction::APPROVED_STATUS
+            ) {
                 $this->paymentHandler->creditReceiverForTransaction($transaction);
                 $this->paymentHandler->deductMoneyFromUserWalletForCreditTransaction($transaction, Auth::user()->wallet);
                 $this->paymentHandler->createNewTipNotificationForCreditTransaction($transaction);
@@ -202,7 +206,7 @@ class PaymentsController extends Controller
             }
 
             // create payment request for this transaction and leave it on initiated status
-            if($transaction['payment_provider'] === Transaction::MANUAL_PROVIDER){
+            if ($transaction['payment_provider'] === Transaction::MANUAL_PROVIDER) {
                 $manualPaymentFiles = $request->get('manual_payment_files');
                 $manualPaymentDescription = $request->get('manual_payment_description');
                 PaymentRequestServiceProvider::createDepositPaymentRequestByTransaction($transaction, $manualPaymentFiles, $manualPaymentDescription);
@@ -216,7 +220,7 @@ class PaymentsController extends Controller
                         $transaction->save();
                     }
                 } catch (\Exception $exception) {
-                    Log::error("Failed generating invoice for transaction: ".$transaction->id." error: ".$exception->getMessage());
+                    Log::error("Failed generating invoice for transaction: " . $transaction->id . " error: " . $exception->getMessage());
                 }
             }
         } catch (\Exception $exception) {
@@ -266,8 +270,10 @@ class PaymentsController extends Controller
                 }
             }
 
-            if ($transaction != null && $transaction->status === Transaction::APPROVED_STATUS
-                && ($transaction->type === Transaction::TIP_TYPE || $transaction->type === Transaction::CHAT_TIP_TYPE)) {
+            if (
+                $transaction != null && $transaction->status === Transaction::APPROVED_STATUS
+                && ($transaction->type === Transaction::TIP_TYPE || $transaction->type === Transaction::CHAT_TIP_TYPE)
+            ) {
                 NotificationServiceProvider::createNewTipNotification($transaction);
             }
         }
@@ -313,16 +319,16 @@ class PaymentsController extends Controller
 
         try {
             if ($event->type === 'checkout.session.completed') {
-            // Payment is successful and the subscription is created.
-            $session = $event->data->object;
-            if ($session->id != null) {
-                // don't update oxxo transactions here
-                $oxxoTransaction = Transaction::query()->where(['stripe_session_id' => $session->id, 'payment_provider' => Transaction::OXXO_PROVIDER])->first();
-                if(!$oxxoTransaction) {
-                    $this->paymentHandler->updateTransactionByStripeSessionId($session->id);
+                // Payment is successful and the subscription is created.
+                $session = $event->data->object;
+                if ($session->id != null) {
+                    // don't update oxxo transactions here
+                    $oxxoTransaction = Transaction::query()->where(['stripe_session_id' => $session->id, 'payment_provider' => Transaction::OXXO_PROVIDER])->first();
+                    if (!$oxxoTransaction) {
+                        $this->paymentHandler->updateTransactionByStripeSessionId($session->id);
+                    }
                 }
-            }
-            // Occurs whenever a customer's subscription ends.
+                // Occurs whenever a customer's subscription ends.
             } elseif ($event->type === 'customer.subscription.deleted' && isset($event->data->object) && $event->data->object->id != null) {
                 $subscription = Subscription::query()->where('stripe_subscription_id', $event->data->object->id)->first();
                 if ($subscription != null) {
@@ -359,21 +365,21 @@ class PaymentsController extends Controller
             } elseif ($event->type === 'charge.refunded' && isset($event->data->object) && $event->data->object->payment_intent != null) {
                 $transaction = Transaction::query()->where('stripe_transaction_id', $event->data->object->payment_intent)->with('subscription')->first();
                 if ($transaction) {
-                    if($transaction->status === Transaction::APPROVED_STATUS){
+                    if ($transaction->status === Transaction::APPROVED_STATUS) {
                         $this->paymentHandler->deductMoneyFromUserForRefundedTransaction($transaction);
                     }
 
-                    $transaction->status =Transaction::REFUNDED_STATUS;
+                    $transaction->status = Transaction::REFUNDED_STATUS;
                     $transaction->save();
 
-                    if($transaction->subscription != null){
+                    if ($transaction->subscription != null) {
                         $transaction->subscription->status = Subscription::SUSPENDED_STATUS;
                         $transaction->subscription->expires_at = new \DateTime('now', new \DateTimeZone('UTC'));
                         $transaction->subscription->save();
                     }
                 }
-            // handles oxxo (or other stripe payment providers) related hooks
-            } elseif(($event->type === 'checkout.session.async_payment_succeeded' || $event->type === 'checkout.session.async_payment_failed') && isset($event->data->object) && $event->data->object->id != null) {
+                // handles oxxo (or other stripe payment providers) related hooks
+            } elseif (($event->type === 'checkout.session.async_payment_succeeded' || $event->type === 'checkout.session.async_payment_failed') && isset($event->data->object) && $event->data->object->id != null) {
                 $this->paymentHandler->updateTransactionByStripeSessionId($event->data->object->id);
             }
         } catch (\Exception $exception) {
@@ -422,8 +428,9 @@ class PaymentsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function coinbaseHook(Request $request){
-        if(!getSetting('payments.coinbase_webhook_key')){
+    public function coinbaseHook(Request $request)
+    {
+        if (!getSetting('payments.coinbase_webhook_key')) {
             return response()->json([
                 'status' => 400
             ], 400);
@@ -435,11 +442,11 @@ class PaymentsController extends Controller
         // Validate the webhook signature
         if (hash_equals($computedSignature, $request->server('HTTP_X_CC_WEBHOOK_SIGNATURE'))) {
             Log::info("coinbase payload: ", [$payload]);
-            if(isset($payload['event']) && isset($payload['event']['type']) && isset($payload['event']['data']) && isset($payload['event']['data']['id'])){
-                if($payload['event']['type'] === 'charge:failed' || $payload['event']['type'] === 'charge:confirmed'){
+            if (isset($payload['event']) && isset($payload['event']['type']) && isset($payload['event']['data']) && isset($payload['event']['data']['id'])) {
+                if ($payload['event']['type'] === 'charge:failed' || $payload['event']['type'] === 'charge:confirmed') {
                     $transaction = Transaction::query()->where('coinbase_charge_id', $payload['event']['data']['id'])->first();
-                    if($transaction != null){
-                        if($payload['event']['type'] === 'charge:failed'){
+                    if ($transaction != null) {
+                        if ($payload['event']['type'] === 'charge:failed') {
                             $transaction->status = Transaction::CANCELED_STATUS;
                             $transaction->save();
                         } else if ($payload['event']['type'] === 'charge:confirmed') {
@@ -484,11 +491,11 @@ class PaymentsController extends Controller
             switch ($eventType) {
                 case 'PAYMENT.SALE.COMPLETED':
                     // handle recurring payments (one month subscriptions)
-                    if (array_key_exists('billing_agreement_id', $resourceContent) && ! empty($resourceContent['billing_agreement_id'])) {
+                    if (array_key_exists('billing_agreement_id', $resourceContent) && !empty($resourceContent['billing_agreement_id'])) {
                         $agreementId = $resourceContent['billing_agreement_id'];
                         $this->paymentHandler->verifyPayPalAgreement($agreementId, null, $resourceContent['id']);
-                    // handle one time payments
-                    } elseif (array_key_exists('parent_payment', $resourceContent) && ! empty($resourceContent['parent_payment']) && empty($resourceContent['state'])) {
+                        // handle one time payments
+                    } elseif (array_key_exists('parent_payment', $resourceContent) && !empty($resourceContent['parent_payment']) && empty($resourceContent['state'])) {
                         $transaction = Transaction::query()->where('paypal_transaction_id', $resourceContent['parent_payment'])->first();
                         if ($transaction != null && $transaction->status == Transaction::INITIATED_STATUS) {
                             if ($resourceContent['state'] == 'completed') {
@@ -527,17 +534,17 @@ class PaymentsController extends Controller
                     }
                     break;
                 case 'PAYMENT.SALE.REFUNDED':
-                    if (array_key_exists('parent_payment', $resourceContent) && ! empty($resourceContent['parent_payment'])) {
+                    if (array_key_exists('parent_payment', $resourceContent) && !empty($resourceContent['parent_payment'])) {
                         $transaction = Transaction::query()->where('paypal_transaction_id', $resourceContent['parent_payment'])->with('subscription')->first();
                         if ($transaction) {
-                            if($transaction->status === Transaction::APPROVED_STATUS){
+                            if ($transaction->status === Transaction::APPROVED_STATUS) {
                                 $this->paymentHandler->deductMoneyFromUserForRefundedTransaction($transaction);
                             }
 
                             $transaction->status = Transaction::REFUNDED_STATUS;
                             $transaction->save();
 
-                            if($transaction->subscription != null){
+                            if ($transaction->subscription != null) {
                                 $transaction->subscription->status = Subscription::SUSPENDED_STATUS;
                                 $transaction->subscription->expires_at = new \DateTime('now', new \DateTimeZone('UTC'));
                                 $transaction->subscription->save();
@@ -596,14 +603,12 @@ class PaymentsController extends Controller
 
                 if ($city != null && $city != $loggedUser->city) {
                     $updateData['city'] = $city;
-
                 }
 
                 if ($postcode != null && $postcode != $loggedUser->postcode) {
                     $updateData['postcode'] = $postcode;
-
                 }
-                if(!empty($updateData)) {
+                if (!empty($updateData)) {
                     $loggedUser->update($updateData);
                 }
             }
@@ -619,7 +624,7 @@ class PaymentsController extends Controller
     {
         $nowPaymentsTransactionToken = $request->get('orderId');
         $transaction = null;
-        if($nowPaymentsTransactionToken) {
+        if ($nowPaymentsTransactionToken) {
             $transaction = Transaction::query()->where('nowpayments_order_id', $nowPaymentsTransactionToken)->first();
             if ($transaction) {
                 $this->paymentHandler->checkAndUpdateNowPaymentsTransaction($transaction);
@@ -635,15 +640,16 @@ class PaymentsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function nowPaymentsHook(Request $request){
-        if(!getSetting('payments.nowpayments_ipn_secret_key')){
+    public function nowPaymentsHook(Request $request)
+    {
+        if (!getSetting('payments.nowpayments_ipn_secret_key')) {
             Log::info("NowPayments hook error: missing IPN secret key");
             return response()->json([
                 'status' => 400
             ], 400);
         }
 
-        try{
+        try {
             if (isset($_SERVER['HTTP_X_NOWPAYMENTS_SIG']) && !empty($_SERVER['HTTP_X_NOWPAYMENTS_SIG'])) {
                 $received_hmac = $_SERVER['HTTP_X_NOWPAYMENTS_SIG'];
                 $request_json = $request->getContent();
@@ -655,12 +661,12 @@ class PaymentsController extends Controller
                     $hmac = hash_hmac("sha512", $sorted_request_json, trim(getSetting('payments.nowpayments_ipn_secret_key')));
                     if ($hmac == $received_hmac) {
                         Log::info("NowPayments hook payload: ", [$payload]);
-                        if(isset($payload['order_id']) && isset($payload['payment_status']) && isset($payload['payment_id'])) {
+                        if (isset($payload['order_id']) && isset($payload['payment_status']) && isset($payload['payment_id'])) {
                             $transaction = Transaction::query()->where('nowpayments_order_id', $payload['order_id'])->with('receiver')->first();
-                            if($transaction){
-                                if(in_array($transaction->status, [Transaction::INITIATED_STATUS, Transaction::PENDING_STATUS, Transaction::PARTIALLY_PAID_STATUS])){
+                            if ($transaction) {
+                                if (in_array($transaction->status, [Transaction::INITIATED_STATUS, Transaction::PENDING_STATUS, Transaction::PARTIALLY_PAID_STATUS])) {
                                     // payment approved
-                                    if($payload['payment_status'] === 'finished') {
+                                    if ($payload['payment_status'] === 'finished') {
                                         $transaction->status = Transaction::APPROVED_STATUS;
                                         $this->paymentHandler->creditReceiverForTransaction($transaction);
                                         NotificationServiceProvider::createTipNotificationByTransaction($transaction);
@@ -680,7 +686,7 @@ class PaymentsController extends Controller
                                     }
                                     $transaction->save();
                                     // handle refund
-                                } else if($transaction->status === Transaction::APPROVED_STATUS && $payload['payment_status'] === 'refunded') {
+                                } else if ($transaction->status === Transaction::APPROVED_STATUS && $payload['payment_status'] === 'refunded') {
                                     $this->paymentHandler->deductMoneyFromUserForRefundedTransaction($transaction);
                                     $transaction->status = Transaction::REFUNDED_STATUS;
                                     $transaction->save();
@@ -700,7 +706,7 @@ class PaymentsController extends Controller
             } else {
                 Log::info('NowPayments No HMAC signature sent.');
             }
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
             Log::info("NowPayments hook error: ", [$exception->getMessage()]);
         }
 
@@ -718,7 +724,7 @@ class PaymentsController extends Controller
     {
         $paymentToken = $request->get('token');
         $transaction = null;
-        if($paymentToken) {
+        if ($paymentToken) {
             $transaction = Transaction::query()->where('ccbill_payment_token', $paymentToken)->first();
         }
 
@@ -737,9 +743,11 @@ class PaymentsController extends Controller
 
         try {
             // check if this webhook comes with the right ccbill account numbers
-            if ($ccBillAccountNumber === getSetting('payments.ccbill_account_number')
+            if (
+                $ccBillAccountNumber === getSetting('payments.ccbill_account_number')
                 && ($ccBillSubAccountNumber === getSetting('payments.ccbill_subaccount_number_recurring')
-                    || $ccBillSubAccountNumber === getSetting('payments.ccbill_subaccount_number_one_time'))) {
+                    || $ccBillSubAccountNumber === getSetting('payments.ccbill_subaccount_number_one_time'))
+            ) {
                 $content = $request->getContent();
                 // handles possible UTF8 incorrectly encoded characters coming from CCBill
                 $utfEncodedContent = mb_convert_encoding($content, 'UTF-8', 'UTF-8');
@@ -758,11 +766,11 @@ class PaymentsController extends Controller
                         $transaction->status = $saleSuccess ? Transaction::APPROVED_STATUS : Transaction::DECLINED_STATUS;
                         $transaction->save();
 
-                        if($this->paymentHandler->isSubscriptionPayment($transaction->type) && $transaction->subscription) {
+                        if ($this->paymentHandler->isSubscriptionPayment($transaction->type) && $transaction->subscription) {
                             $subscription = $transaction->subscription;
                             $subscription->ccbill_subscription_id = $subscriptionId;
-                            if($saleSuccess) {
-                                $expiresDate = new \DateTime('+'.$this->paymentHandler->getCCBillRecurringPeriodInDaysByTransaction($transaction).' days', new \DateTimeZone('UTC'));
+                            if ($saleSuccess) {
+                                $expiresDate = new \DateTime('+' . $this->paymentHandler->getCCBillRecurringPeriodInDaysByTransaction($transaction) . ' days', new \DateTimeZone('UTC'));
                                 if ($subscription->status != Subscription::ACTIVE_STATUS) {
                                     $subscription->status = Subscription::ACTIVE_STATUS;
                                     $subscription->expires_at = $expiresDate;
@@ -771,7 +779,6 @@ class PaymentsController extends Controller
                                 } else {
                                     $subscription->expires_at = $expiresDate;
                                 }
-
                             } else {
                                 $subscription->status = Subscription::FAILED_STATUS;
                             }
@@ -786,7 +793,7 @@ class PaymentsController extends Controller
                         }
                     }
                     // handle refund
-                } elseif(isset($eventBody['transactionId']) && $eventType === 'Refund') {
+                } elseif (isset($eventBody['transactionId']) && $eventType === 'Refund') {
                     $transaction = Transaction::where('ccbill_transaction_id', $eventBody['transactionId'])->with('subscription')->first();
                     if ($transaction->status === Transaction::APPROVED_STATUS) {
                         $this->paymentHandler->deductMoneyFromUserForRefundedTransaction($transaction);
@@ -838,7 +845,8 @@ class PaymentsController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function verifyPaystackTransaction(Request $request) {
+    public function verifyPaystackTransaction(Request $request)
+    {
         $reference = $request->get('reference');
         $transaction = $this->paymentHandler->verifyPaystackTransaction($reference);
 
@@ -849,32 +857,33 @@ class PaymentsController extends Controller
      * @param Request $request
      * @return void
      */
-    public function paystackHook(Request $request) {
+    public function paystackHook(Request $request)
+    {
         // Retrieve the request's body and parse it as JSON
         $event = Paystack\Event::capture();
 
         /* Verify that the signature matches one of your keys*/
         $my_keys = [
-            'live'=>getSetting('payments.paystack_secret_key'),
-            'test'=>getSetting('payments.paystack_secret_key'),
+            'live' => getSetting('payments.paystack_secret_key'),
+            'test' => getSetting('payments.paystack_secret_key'),
         ];
         $owner = $event->discoverOwner($my_keys);
-        if(!$owner){
+        if (!$owner) {
             return;
         }
         Log::debug('Paystack hook received: ', [$event]);
 
-        switch($event->obj->event){
-            // charge.success
+        switch ($event->obj->event) {
+                // charge.success
             case 'charge.success':
-                if('success' === $event->obj->data->status){
+                if ('success' === $event->obj->data->status) {
                     $this->paymentHandler->verifyPaystackTransaction($event->obj->data->reference);
                 }
                 break;
             case 'refund.processed':
-                if($event->obj->data->transaction_reference) {
+                if ($event->obj->data->transaction_reference) {
                     $transaction = Transaction::where('paystack_payment_token', $event->obj->data->transaction_reference)->first();
-                    if($transaction->status === Transaction::APPROVED_STATUS){
+                    if ($transaction->status === Transaction::APPROVED_STATUS) {
                         $transaction->status = Transaction::REFUNDED_STATUS;
                         $transaction->save();
                         $this->paymentHandler->deductMoneyFromUserForRefundedTransaction($transaction);
@@ -885,5 +894,52 @@ class PaymentsController extends Controller
         }
 
         http_response_code(200);
+    }
+
+    public function stripeConnect(Request $request)
+    {
+        // try {
+            $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
+            $account = $stripe->accounts->create([
+                'type' => 'express',
+                'country' => 'AU',
+                'email' => auth()->user()->email,
+                'capabilities' => [
+                    'card_payments' => ['requested' => true],
+                    'transfers' => ['requested' => true],
+                ],
+            ]);
+
+
+            Log::info(json_encode($account));
+
+            auth()->user()->stripe_id = $account->id;
+
+            $link = $stripe->accountLinks->create([
+                'account' => $account->id,
+                'refresh_url' => 'https://justfindom.org/stripe/connect',
+                'return_url' => 'https://justfindom.org/stripe/connected',
+                'type' => 'account_onboarding',
+            ]);
+            Log::info(json_encode($link));
+            auth()->user()->stripe_link = $link['url'];
+            auth()->user()->save();
+
+            session(['stripeConnection' => $link['url']]);
+
+            return redirect()->away($link['url']);
+        // } catch (\Exception $e) {
+        //     return "API Error, Please Contact Support";
+        // }
+    }
+
+    public function stripeConnected(Request $request)
+    {
+        auth()->user()->stripe_connect = true;
+        auth()->user()->save();
+
+        Log::info('User Connected with Stripe Successfully User is: ' . auth()->user()->email);
+
+        return redirect('/my/settings/wallet');
     }
 }
