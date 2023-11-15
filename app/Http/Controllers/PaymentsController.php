@@ -917,8 +917,8 @@ class PaymentsController extends Controller
 
             $link = $stripe->accountLinks->create([
                 'account' => $account->id,
-                'refresh_url' => 'https://justfindom.org/stripe/connect',
-                'return_url' => 'https://justfindom.org/stripe/connected',
+                'refresh_url' => 'https://mysteriax.asanhub.com/stripe/connect',
+                'return_url' => 'https://mysteriax.asanhub.com/stripe/connected',
                 'type' => 'account_onboarding',
             ]);
             Log::info(json_encode($link));
