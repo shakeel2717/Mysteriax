@@ -9,7 +9,7 @@
                 </div>
                 @else
                 <div class="d-flex justify-content-between align-items-center">
-                    <h4>Stipe Express Connected</h4>
+                    <h4>Stripe Express Connected</h4>
                 </div>
                 @endif
             </div>
