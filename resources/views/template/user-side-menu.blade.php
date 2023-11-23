@@ -71,6 +71,7 @@
                     ])
                     {{ __('Vault') }}</a>
             </li>
+            @if (GenericHelper::isUserVerified())
             <li class="{{ Route::currentRouteName() == 'my.earning.index' ? 'active' : '' }}">
                 <a class="scroll-link d-flex align-items-center" href="{{ route('my.earning.index') }}">
                     @include('elements.icon', [
@@ -81,6 +82,7 @@
                     ])
                     {{ __('Earnings') }}</a>
             </li>
+            @endif
 
             <li class="{{ Route::currentRouteName() == 'my.settings' ? 'active' : '' }}">
                 <a class="scroll-link d-flex align-items-center" href="{{ route('my.settings') }}">

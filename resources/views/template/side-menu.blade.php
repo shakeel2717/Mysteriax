@@ -94,6 +94,7 @@
                     </div>
                 </a>
             </li>
+            @if (GenericHelper::isUserVerified())
             <li class="nav-item">
                 <a href="{{route('my.earning.index')}}" class="nav-link {{Route::currentRouteName() == 'my.earning.index' ? 'active' : ''}} h-pill h-pill-primary d-flex justify-content-between">
                     <div class="d-flex justify-content-center align-items-center">
@@ -104,11 +105,12 @@
                     </div>
                 </a>
             </li>
+            @endif
             <li class="nav-item">
                 <a href="{{route('my.settings',['type'=>'subscriptions'])}}" class="nav-link {{Route::currentRouteName() == 'my.settings' &&  is_int(strpos(Request::path(),'subscriptions')) ? 'active' : ''}} h-pill h-pill-primary d-flex justify-content-between">
                     <div class="d-flex justify-content-center align-items-center">
                         <div class="icon-wrapper d-flex justify-content-center align-items-center">
-                            @include('elements.icon',['icon'=>'people-circle-outline','variant'=>'large'])
+                            @include('elements.icon',['icon'=>'settings-outline','variant'=>'large'])
                         </div>
                         <span class="d-none d-md-block d-xl-block d-lg-block ml-2 text-truncate side-menu-label">{{__('Settings')}}</span>
                     </div>
@@ -176,7 +178,7 @@
                 </li>
             @endif
         @endif
-
+        @if (GenericHelper::isUserVerified())
         @if(!getSetting('site.hide_create_post_menu'))
             @if(GenericHelper::isEmailEnforcedAndValidated())
                 <li class="nav-item">
@@ -187,7 +189,6 @@
                 </li>
             @endif
         @endif
-
-
+        @endif
     </ul>
 </div>
