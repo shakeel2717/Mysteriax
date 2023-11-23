@@ -45,12 +45,13 @@ class SettingsController extends Controller
         'account' => ['heading' => 'Manage your account settings', 'icon' => 'settings'],
         'wallet' => ['heading' => 'Your payments & wallet', 'icon' => 'wallet'],
         'payments' => ['heading' => 'Your payments & wallet', 'icon' => 'card'],
-        // 'rates' => ['heading' => 'Prices & Bundles', 'icon' => 'layers'],
+        'rates' => ['heading' => 'Prices & Bundles', 'icon' => 'layers'],
         'subscriptions' => ['heading' => 'Your active subscriptions', 'icon' => 'people'],
         'referrals' => ['heading' => 'Invite other people to earn more', 'icon' => 'person-add'],
         // 'notifications' => ['heading' => 'Your email notifications settings', 'icon' => 'notifications'],
-        // 'privacy' => ['heading' => 'Your privacy and safety matters', 'icon' => 'shield'],
-        // 'verify' => ['heading' => 'Get verified and start to earning now', 'icon' => 'checkmark'],
+        'privacy' => ['heading' => 'Your privacy and safety matters', 'icon' => 'shield'],
+        'withdraw' => ['heading' => 'Withdraw Your Funds', 'icon' => 'wallet'],
+        'verify' => ['heading' => 'Get verified and start to earning now', 'icon' => 'checkmark'],
     ];
 
     public function __construct()
@@ -92,6 +93,7 @@ class SettingsController extends Controller
         $data = [];
         switch ($request->route('type')) {
             case 'wallet':
+            case 'withdraw':
                 JavaScript::put([
                     'stripeConfig' => [
                         'stripePublicID' => getSetting('payments.stripe_public_key'),
@@ -132,6 +134,7 @@ class SettingsController extends Controller
                 $data['subscribers'] = $subscribers;
                 break;
             case 'account':
+            case 'privacy':
                 // Default tab - active subs
                 $activeSubsTab = 'subscriptions';
                 if ($request->get('active')) {
@@ -183,6 +186,8 @@ class SettingsController extends Controller
                 $data['payments'] = $payments;
                 break;
             case null:
+                return view('elements.settings.index');
+                break;
             case 'profile':
                 JavaScript::put([
                     'bioConfig' => [
