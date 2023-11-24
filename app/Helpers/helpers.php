@@ -6,23 +6,22 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
-if (! function_exists('getSetting')) {
+if (!function_exists('getSetting')) {
     function getSetting($key, $default = null)
     {
         try {
             $dbSetting = TCG\Voyager\Facades\Voyager::setting($key, $default);
-        }
-        catch (Exception $exception){
+        } catch (Exception $exception) {
             $dbSetting = null;
         }
 
-        $configSetting = config('app.'.$key);
+        $configSetting = config('app.' . $key);
         if ($dbSetting) {
             // If voyager setting is file type, extract the value only
             if (is_string($dbSetting) && strpos($dbSetting, 'download_link')) {
                 $file = json_decode($dbSetting);
                 if ($file) {
-                    $file = Storage::disk(config('filesystems.defaultFilesystemDriver'))->url(str_replace('\\','/',$file[0]->download_link));
+                    $file = Storage::disk(config('filesystems.defaultFilesystemDriver'))->url(str_replace('\\', '/', $file[0]->download_link));
                 }
                 return $file;
             }
@@ -37,39 +36,43 @@ if (! function_exists('getSetting')) {
     }
 }
 
-function getLockCode(){
-    if(session()->get(InstallerServiceProvider::$lockCode) == env('APP_KEY')){
+function getLockCode()
+{
+    if (session()->get(InstallerServiceProvider::$lockCode) == env('APP_KEY')) {
         return true;
-    }
-    else{
+    } else {
         return false;
     }
 }
 
-function setLockCode($code){
+function setLockCode($code)
+{
     $sessData = [];
     $sessData[$code] = env('APP_KEY');
     session($sessData);
     return true;
 }
 
-function getUserAvatarAttribute($a){
+function getUserAvatarAttribute($a)
+{
     return GenericHelperServiceProvider::getStorageAvatarPath($a);
 }
 
-function getLicenseType(){
+function getLicenseType()
+{
     $licenseType = 'Unlicensed';
-    if(file_exists(storage_path('app/installed'))){
+    if (file_exists(storage_path('app/installed'))) {
         $licenseV = json_decode(file_get_contents(storage_path('app/installed')));
-        if(isset($licenseV->data) && isset($licenseV->data->license)){
+        if (isset($licenseV->data) && isset($licenseV->data->license)) {
             $licenseType = $licenseV->data->license;
         }
     }
     return $licenseType;
 }
 
-function handledExec($command, $throw_exception = true) {
-    $result = exec('('.$command.')', $output, $return_code);
+function handledExec($command, $throw_exception = true)
+{
+    $result = exec('(' . $command . ')', $output, $return_code);
     if ($throw_exception) {
         if (($result === false) || ($return_code !== 0)) {
             throw new Exception('Error processing command: ' . $command . "\n\n" . implode("\n", $output) . "\n\n");
@@ -78,7 +81,8 @@ function handledExec($command, $throw_exception = true) {
     return implode("\n", $output);
 }
 
-function checkMysqlndForPDO(){
+function checkMysqlndForPDO()
+{
     $dbHost = env('DB_HOST');
     $dbUser = env('DB_USERNAME');
     $dbPass = env('DB_PASSWORD');
@@ -91,7 +95,8 @@ function checkMysqlndForPDO(){
     return false;
 }
 
-function checkForMysqlND(){
+function checkForMysqlND()
+{
     if (extension_loaded('mysqlnd')) {
         return true;
     }
@@ -115,4 +120,18 @@ function getUserCountry($type)
         return "US";
     }
     return "US";
+}
+
+// checking if user have setup stripe
+function getUserStripeStatus()
+{
+    if (
+        !auth()->user()->stripe_connect
+        && auth()->user()->stripe_id != null
+        && auth()->user()->stripe_link != null
+    ) {
+        return true;
+    } else {
+        return false;
+    }
 }

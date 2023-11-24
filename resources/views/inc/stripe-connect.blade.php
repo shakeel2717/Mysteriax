@@ -58,15 +58,19 @@
             <input type="hidden" name="withdrawal-payment-identifier" id="withdrawal-payment-identifier"
                 value="Stripe Express">
             <input type="hidden" name="payment-methods" id="payment-methods" value="{{ auth()->user()->email }}">
-
-            <div class="payout-button mt-4">
-                <form action="#" method="POST">
-                    @csrf
-                    <button class="btn btn-primary btn-lg rounded-pill mt-4 withdrawal-continue-btn"
-                        type="button">Withdraw:
-                        {{ \App\Providers\SettingsServiceProvider::getWebsiteCurrencySymbol() }}{{ number_format(Auth::user()->wallet->total, 2, '.', '') }}</button>
-                </form>
-            </div>
+            @if (getUserStripeStatus())
+                <div class="payout-button mt-4">
+                    <form action="#" method="POST">
+                        @csrf
+                        <button class="btn btn-primary btn-lg rounded-pill mt-4 withdrawal-continue-btn"
+                            type="button">Withdraw:
+                            {{ \App\Providers\SettingsServiceProvider::getWebsiteCurrencySymbol() }}{{ number_format(Auth::user()->wallet->total, 2, '.', '') }}</button>
+                    </form>
+                </div>
+            @else
+            <hr>
+            <h5 class="text-danger">Please Connect Stripe ...</h5>
+            @endif
         </div>
     </div>
 @endif
