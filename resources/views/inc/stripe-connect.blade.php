@@ -5,7 +5,7 @@
             <div class="payment-method mb-4 d-flex justify-content-between align-items-center">
                 <div class="connection-info d-flex align-items-center">
                     <h4 class="title text-uppercase mb-0 mr-2"><b>Stripe</b></h4>
-                    @if (!auth()->user()->stripe_connect && auth()->user()->stripe_id != null)
+                    @if (getUserStripeStatus())
                         @include('elements.icon', [
                             'icon' => 'radio-button-on-outline',
                             'variant' => 'small',
