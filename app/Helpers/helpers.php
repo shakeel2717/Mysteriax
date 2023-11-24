@@ -126,7 +126,7 @@ function getUserCountry($type)
 function getUserStripeStatus()
 {
     if (
-        !auth()->user()->stripe_connect
+        auth()->user()->stripe_connect == 1
         && auth()->user()->stripe_id != null
         && auth()->user()->stripe_link != null
     ) {
