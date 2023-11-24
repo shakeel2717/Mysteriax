@@ -2,6 +2,8 @@
 
 use App\Providers\GenericHelperServiceProvider;
 use App\Providers\InstallerServiceProvider;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
 if (! function_exists('getSetting')) {
@@ -94,4 +96,23 @@ function checkForMysqlND(){
         return true;
     }
     return false;
+}
+
+
+function getUserCountry($type)
+{
+    try {
+        $ip = \request()->ip();
+        return Cache::remember('ip' . $ip . $type, 60 * 60 * 2, function () use ($ip, $type) {
+            $data = Http::get("http://www.geoplugin.net/json.gp?ip=" . $ip);
+            if (isset($data[$type])) {
+                return $data[$type];
+            } else {
+                return "US";
+            }
+        });
+    } catch (Exception $e) {
+        return "US";
+    }
+    return "US";
 }

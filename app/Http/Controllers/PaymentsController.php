@@ -902,7 +902,7 @@ class PaymentsController extends Controller
             $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
             $account = $stripe->accounts->create([
                 'type' => 'express',
-                'country' => 'AU',
+                'country' => getUserCountry('geoplugin_countryCode') ?? "US",
                 'email' => auth()->user()->email,
                 'capabilities' => [
                     'card_payments' => ['requested' => true],
