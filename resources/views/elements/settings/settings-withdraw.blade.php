@@ -1,4 +1,4 @@
-@include('inc.stipe-connect')
+@include('inc.stripe-connect')
 <div class="d-flex justify-content-between align-items-center mt-3">
     @if(getSetting('payments.withdrawal_allow_fees') && floatval(getSetting('payments.withdrawal_default_fee_percentage')) > 0)
         <div class="d-flex align-items-center">
@@ -10,14 +10,8 @@
     @else
         <h5></h5>
     @endif
-    <div class="d-flex align-items-center">
-        @include('elements.icon',['icon'=>'information-circle-outline','variant'=>'small','centered'=>false,'classes'=>'mr-2'])
-        <span class="text-right" id="pending-balance" title="{{__("The payouts are manually and it usually take up to 24 hours for a withdrawal to be processed, we will notify you as soon as your request is processed.")}}">
-            {{__('Pending balance')}} (<b class="wallet-pending-amount">{{config('app.site.currency_symbol')}}{{number_format(Auth::user()->wallet->pendingBalance, 2, '.', '')}}</b>)
-        </span>
-    </div>
 </div>
-<div class="input-group mb-3 mt-3">
+{{-- <div class="input-group mb-3 mt-3">
     <div class="input-group-prepend">
         <span class="input-group-text" id="amount-label">@include('elements.icon',['icon'=>'cash-outline','variant'=>'medium'])</span>
     </div>
@@ -57,4 +51,4 @@
 
     <div class="payment-error error text-danger d-none mt-3">{{__('Add all required info')}}</div>
     <button class="btn btn-primary btn-block rounded mr-0 withdrawal-continue-btn" type="submit">{{__('Request withdrawal')}}</button>
-</div>
+</div> --}}

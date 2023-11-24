@@ -423,6 +423,9 @@ class SettingsController extends Controller
                 $additionalAssets['js'][] = '/libs/dropzone/dist/dropzone.js';
                 $additionalAssets['js'][] = '/js/FileUpload.js';
                 break;
+            case 'withdraw':
+                $additionalAssets['js'][] = '/js/pages/settings/withdrawal.js';
+                break;
             case 'profile':
             case null:
                 $additionalAssets['css'][] = '/libs/dropzone/dist/dropzone.css';
