@@ -144,22 +144,25 @@
                                 </div>
                             </form>
                             <div class="messenger-buttons-wrapper details-holder d-flex">
-                                @if (GenericHelper::creatorCanEarnMoney(Auth::user()))
-                                    <button
-                                        class="btn btn-outline-primary btn-rounded-icon messenger-button mx-2 to-tooltip"
-                                        data-placement="top" title="{{ __('Message price') }}"
-                                        onClick="messenger.showSetPriceDialog()">
-                                        <div class="d-flex justify-content-center align-items-center">
-                                            <span class="message-price-lock">@include('elements.icon', [
-                                                'icon' => 'lock-open',
-                                                'variant' => '',
-                                            ])</span>
-                                            <span class="message-price-close d-none">@include('elements.icon', [
-                                                'icon' => 'lock-closed',
-                                                'variant' => '',
-                                            ])</span>
-                                        </div>
-                                    </button>
+                                @if (GenericHelper::isUserVerified())
+                                    @if (GenericHelper::creatorCanEarnMoney(Auth::user()))
+                                        <button
+                                            class="btn btn-outline-primary btn-rounded-icon messenger-button mx-2 to-tooltip"
+                                            data-placement="top" title="{{ __('Message price') }}"
+                                            onClick="messenger.showSetPriceDialog()">
+                                            <div class="d-flex justify-content-center align-items-center">
+                                                <span class="message-price-lock">@include('elements.icon', [
+                                                    'icon' => 'lock-open',
+                                                    'variant' => '',
+                                                ])</span>
+                                                <span
+                                                    class="message-price-close d-none">@include('elements.icon', [
+                                                        'icon' => 'lock-closed',
+                                                        'variant' => '',
+                                                    ])</span>
+                                            </div>
+                                        </button>
+                                    @endif
                                 @endif
                                 <button class="btn btn-outline-primary btn-rounded-icon tip-btn mr-2 to-tooltip"
                                     data-toggle="modal" data-target="#checkout-center" data-type="chat-tip"
