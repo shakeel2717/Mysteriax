@@ -56,6 +56,10 @@
                             {{ $notification->fromUser->name }} {{ __(' subscribed to your profile') }}
                         @break
 
+                        @case(\App\Model\Notification::NEW_FOLLOWER)
+                            {{ $notification->fromUser->name }} {{ __(' start following you') }}
+                        @break
+
                         @case(\App\Model\Notification::WITHDRAWAL_ACTION)
                             {{ __('Withdrawal processed', [
                                 'currencySymbol' => \App\Providers\SettingsServiceProvider::getWebsiteCurrencySymbol(),

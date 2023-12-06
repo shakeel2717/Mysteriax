@@ -78,6 +78,7 @@ class NotificationsController extends Controller
                     break;
                 case Notification::SUBSCRIPTIONS_FILTER:
                     $types[] = Notification::NEW_SUBSCRIPTION;
+                    $types[] = Notification::NEW_FOLLOWER;
                     break;
                 case Notification::TIPS_FILTER:
                     $types[] = Notification::NEW_TIP;

@@ -24,6 +24,7 @@ class Notification extends Model
     const NEW_REACTION = 'reaction';
     const NEW_COMMENT = 'new-comment';
     const NEW_SUBSCRIPTION = 'new-subscription';
+    const NEW_FOLLOWER = 'new-follower';
     const WITHDRAWAL_ACTION = 'withdrawal-action';
     const NEW_MESSAGE = 'new-message';
     const EXPIRING_STREAM = 'expiring-stream';
