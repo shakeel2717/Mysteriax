@@ -164,22 +164,25 @@
                                         </button>
                                     @endif
                                 @endif
-                                <button class="btn btn-outline-primary btn-rounded-icon tip-btn mr-2 to-tooltip"
-                                    data-toggle="modal" data-target="#checkout-center" data-type="chat-tip"
-                                    data-first-name="{{ Auth::user()->first_name }}"
-                                    data-last-name="{{ Auth::user()->last_name }}"
-                                    data-billing-address="{{ Auth::user()->billing_address }}"
-                                    data-country="{{ Auth::user()->country }}" data-city="{{ Auth::user()->city }}"
-                                    data-state="{{ Auth::user()->state }}" data-postcode="{{ Auth::user()->postcode }}"
-                                    data-available-credit="{{ Auth::user()->wallet->total }}" data-placement="top"
-                                    title="{{ __('Send a tip') }}">
-                                    <div class="d-flex justify-content-center align-items-center">
-                                        @include('elements.icon', [
-                                            'icon' => 'cash-outline',
-                                            'variant' => '',
-                                        ])
-                                    </div>
-                                </button>
+                                @if (!GenericHelper::isUserVerified())
+                                    <button class="btn btn-outline-primary btn-rounded-icon tip-btn mr-2 to-tooltip"
+                                        data-toggle="modal" data-target="#checkout-center" data-type="chat-tip"
+                                        data-first-name="{{ Auth::user()->first_name }}"
+                                        data-last-name="{{ Auth::user()->last_name }}"
+                                        data-billing-address="{{ Auth::user()->billing_address }}"
+                                        data-country="{{ Auth::user()->country }}" data-city="{{ Auth::user()->city }}"
+                                        data-state="{{ Auth::user()->state }}"
+                                        data-postcode="{{ Auth::user()->postcode }}"
+                                        data-available-credit="{{ Auth::user()->wallet->total }}" data-placement="top"
+                                        title="{{ __('Send a tip') }}">
+                                        <div class="d-flex justify-content-center align-items-center">
+                                            @include('elements.icon', [
+                                                'icon' => 'cash-outline',
+                                                'variant' => '',
+                                            ])
+                                        </div>
+                                    </button>
+                                @endif
                                 <button
                                     class="btn btn-outline-primary btn-rounded-icon messenger-button send-message mr-2 to-tooltip"
                                     onClick="messenger.sendMessage()" data-placement="top"
