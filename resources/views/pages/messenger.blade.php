@@ -120,7 +120,7 @@
                         </div>
                         <div class="dropzone-previews dropzone w-100 ppl-0 pr-0 pt-1 pb-1"></div>
                         <div
-                            class="conversation-writeup pt-1 pb-1 d-flex align-items-center mb-1 neutral-bg {{ !$lastContactID ? 'hidden' : '' }}">
+                            class="conversation-writeup w-100 pt-1 pb-1 d-flex align-items-center mb-1 neutral-bg {{ !$lastContactID ? 'hidden' : '' }}">
                             <div class="messenger-buttons-wrapper d-flex pl-2">
                                 <button
                                     class="btn btn-outline-primary btn-rounded-icon messenger-button attach-file mx-2 file-upload-button to-tooltip"
