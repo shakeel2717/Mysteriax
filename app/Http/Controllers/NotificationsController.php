@@ -111,22 +111,12 @@ class NotificationsController extends Controller
                 ->with(['fromUser', 'post'])
                 ->paginate(8);
         } else {
-            if (GenericHelperServiceProvider::isUserVerified()) {
-                $notifications = Notification::query()
-                    ->where(['to_user_id' => Auth::id()])
-                    ->orderBy('read', 'ASC')
-                    ->whereNotIn('type', ['new-message'])
-                    ->orderBy('created_at', 'DESC')
-                    ->with(['fromUser', 'post'])
-                    ->paginate(7);
-            } else {
-                $notifications = Notification::query()
-                    ->where(['to_user_id' => Auth::id()])
-                    ->orderBy('read', 'ASC')
-                    ->orderBy('created_at', 'DESC')
-                    ->with(['fromUser', 'post'])
-                    ->paginate(7);
-            }
+            $notifications = Notification::query()
+                ->where(['to_user_id' => Auth::id()])
+                ->orderBy('read', 'ASC')
+                ->orderBy('created_at', 'DESC')
+                ->with(['fromUser', 'post'])
+                ->paginate(7);
         }
 
         return $notifications;
