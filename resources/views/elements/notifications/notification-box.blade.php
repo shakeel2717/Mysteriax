@@ -69,9 +69,7 @@
                         @break
 
                         @case(\App\Model\Notification::NEW_MESSAGE)
-                            @if (!GenericHelper::isUserVerified())
-                                {{ __('Send you a message: `:message`', ['message' => $notification->userMessage->message]) }}
-                            @endif
+                            {{ __('Send you a message: `:message`', ['message' => $notification->userMessage->message]) }}
                         @break
 
                         @case(\App\Model\Notification::EXPIRING_STREAM)
