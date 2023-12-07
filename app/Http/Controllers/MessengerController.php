@@ -94,7 +94,7 @@ class MessengerController extends Controller
         $unseenMessages = UserMessage::where('receiver_id', Auth::user()->id)->where('isSeen', 0)->count();
         // marking this conversation as read
         UserMessage::where('receiver_id', Auth::user()->id)->where('isSeen', 0)->update(['isSeen' => 1]);
-        
+
         $data = [
             'lastContactID' => $lastContactID,
             'unseenMessages' => $unseenMessages,
@@ -720,6 +720,10 @@ class MessengerController extends Controller
             }
             // Creator is free/open & wants to message the follower
             if ((!$viewerUser->paid_profile || $viewerUser->open_profile) && ListsHelperServiceProvider::isUserFollowing($contactId, $viewerID)) {
+                return true;
+            }
+            // if the receiver is already followed to sender
+            if (ListsHelperServiceProvider::isUserFollowing($contactId, $viewerID) || ListsHelperServiceProvider::isUserFollowing($viewerID, $contactId)) {
                 return true;
             }
         }
