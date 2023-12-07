@@ -212,8 +212,8 @@ class ProfileController extends Controller
             }
             // handles chat access for creators so they can message their subscribers without subscribing back
             $this->viewerHasChatAccess = PostsHelperServiceProvider::hasActiveSub($this->user->id, $viewerUser->id);
-            
-            if (ListsHelperServiceProvider::isUserFollowing($this->user->id, $viewerUser->id)) {
+
+            if (ListsHelperServiceProvider::isUserFollowing($this->user->id, $viewerUser->id) || ListsHelperServiceProvider::isUserFollowing($viewerUser->id, $this->user->id)) {
                 $this->viewerHasChatAccess = true;
             }
         }
