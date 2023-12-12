@@ -1,6 +1,6 @@
 @extends('layouts.user-no-nav')
 
-@section('page_title', __('Bookmarks'))
+@section('page_title', __('Earnings'))
 
 @section('styles')
     @livewireStyles()

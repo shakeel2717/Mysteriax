@@ -1,6 +1,6 @@
 @extends('layouts.user-no-nav')
 
-@section('page_title', __('Bookmarks'))
+@section('page_title', __('Vault'))
 
 @section('styles')
     <style>
