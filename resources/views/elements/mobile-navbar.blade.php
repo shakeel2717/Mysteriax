@@ -18,10 +18,10 @@
                                 'icon' => 'wallet-outline',
                                 'variant' => 'large',
                             ])
-                            <div
+                            {{-- <div
                                 class="menu-notification-badge notifications-menu-count {{ (isset($notificationsCountOverride) && $notificationsCountOverride->total > 0) || NotificationsHelper::getUnreadNotifications()->total > 0 ? '' : 'd-none' }}">
                                 {{ !isset($notificationsCountOverride) ? NotificationsHelper::getUnreadNotifications()->total : $notificationsCountOverride->total }}
-                            </div>
+                            </div> --}}
                         </div>
                     </div>
                 </a>
