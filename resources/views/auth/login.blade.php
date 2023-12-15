@@ -12,6 +12,7 @@
                                 <a href="{{action('HomeController@index')}}">
                                     <img class="brand-logo pb-4" src="{{asset( (Cookie::get('app_theme') == null ? (getSetting('site.default_user_theme') == 'dark' ? getSetting('site.dark_logo') : getSetting('site.light_logo')) : (Cookie::get('app_theme') == 'dark' ? getSetting('site.dark_logo') : getSetting('site.light_logo'))) )}}">
                                 </a>
+                                <h3>Sign up to support your favorite creators</h3>
                                 @include('auth.login-form')
                                 @include('auth.social-login-box')
                             </div>
