@@ -35,7 +35,7 @@ class MessengerController extends Controller
      * @param Request $request
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request, $userId = false)
     {
         $lastContactID = false;
         $lastContact = $this->fetchContacts(1);
@@ -55,6 +55,10 @@ class MessengerController extends Controller
         }
 
         $availableContacts = $this->getUserSearch($request);
+
+        if($userId){
+            $lastContactID = $userId;
+        }
 
         Javascript::put([
             'messengerVars' => [

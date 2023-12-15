@@ -85,6 +85,7 @@ Route::group(['middleware' => ['auth','verified','2fa']], function () {
          */
         Route::group(['prefix' => 'messenger', 'as' => 'messenger.'], function () {
             Route::get('/', ['uses' => 'MessengerController@index', 'as' => 'get']);
+            Route::get('/show/{user?}', ['uses' => 'MessengerController@index', 'as' => 'show']);
             Route::get('/fetchContacts', ['uses' => 'MessengerController@fetchContacts', 'as' => 'fetch']);
             Route::get('/fetchMessages/{userID}', 'MessengerController@fetchMessages', ['as' => 'fetch.user']);
             Route::post('/sendMessage', 'MessengerController@sendMessage', ['as' => 'send']);
