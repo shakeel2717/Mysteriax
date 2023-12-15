@@ -89,5 +89,13 @@
                 </div>
             </div>
         </div>
+        <a href="{{ route('my.messenger.get') }}"
+            class="h-pill h-pill-primary nav-link d-flex justify-content-between">
+            <div class="d-flex justify-content-center align-items-center">
+                <div class="icon-wrapper d-flex justify-content-center align-items-center position-relative">
+                    @include('elements.icon', ['icon' => 'chatbubble-outline', 'variant' => 'large'])
+                </div>
+            </div>
+        </a>
     </div>
 </div>
