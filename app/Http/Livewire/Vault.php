@@ -44,7 +44,7 @@ class Vault extends Component
     public function upload()
     {
         $this->validate([
-            'attachments.*' => 'required|file|mimes:png,jpg,mp4|max:10024',
+            'attachments.*' => 'required|file|mimes:png,jpg,mp4|max:25600',
         ]);
 
         // attachments are multiple now, so we need to loop through them

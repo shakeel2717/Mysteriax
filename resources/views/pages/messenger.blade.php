@@ -19,6 +19,13 @@
                 bottom: 70px;
             }
         }
+
+        .fixed-image {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            cursor: pointer;
+        }
     </style>
     {!! Minify::stylesheet([
         '/libs/@selectize/selectize/dist/css/selectize.css',
@@ -61,6 +68,22 @@
             $('.conversation-wrapper').addClass('d-flex');
             $('.conversations-wrapper').removeClass('d-block');
             $('.conversations-wrapper').addClass('d-none');
+        }
+    </script>
+    <script>
+        function sendImageBlob(imageUrlFromVault, filename) {
+            fetch(imageUrlFromVault)
+                .then(response => response.blob())
+                .then(blob => {
+                    var file = new File([blob], filename, {
+                        type: blob.type
+                    });
+
+                    // Trigger the Dropzone instance
+                    FileUpload.myDropzone.addFile(file);
+                    $('#exampleModal').modal('hide');
+                    // Optionally, you can handle other logic here (e.g., updating UI, etc.)
+                });
         }
     </script>
 @stop
@@ -129,6 +152,21 @@
                                         @include('elements.icon', ['icon' => 'document', 'variant' => ''])
                                     </div>
                                 </button>
+                                <button class="btn btn-outline-primary btn-rounded-icon messenger-button mr-2 to-tooltip"
+                                    data-placement="top" title="{{ __('Attach file from Vault') }}" data-toggle="modal"
+                                    data-target="#exampleModal">
+                                    <div class="d-flex justify-content-center align-items-center">
+                                        @include('elements.icon', [
+                                            'icon' => 'image-outline',
+                                            'variant' => '',
+                                        ])
+                                    </div>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+                                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    @livewire('vault-attach')
+                                </div>
                             </div>
                             <form class="message-form w-100">
                                 <div class="input-group messageBoxInput-wrapper">

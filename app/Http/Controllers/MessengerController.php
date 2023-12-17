@@ -425,6 +425,8 @@ class MessengerController extends Controller
      */
     public function sendMessage(Request $request)
     {
+        info("send message");
+        info($request->get('attachments'));
         $receiverIDs = $request->get('receiverIDs');
         $return = [];
         $errors = [];
