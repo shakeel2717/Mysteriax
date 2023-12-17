@@ -23,7 +23,7 @@
                 @endif
                 <div class="form-group">
                     <label for="attachments">Upload Media</label>
-                    <input wire:model="attachments" type="file" class="form-control-file" multiple>
+                    <input wire:model="attachments" type="file" class="form-control-file">
                 </div>
                 @if ($attachments)
                     <div class="form-group">
