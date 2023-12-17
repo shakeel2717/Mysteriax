@@ -15,6 +15,10 @@
 
 use App\Http\Controllers\EarningController;
 
+// Route::get('/test', function(){
+
+// });
+
 Route::group(['prefix' => 'admin', 'middleware' => 'jsVars'], function () {
     Voyager::routes();
     Route::get('/metrics/new/users/value', 'MetricsController@newUsersValue')->name('admin.metrics.new.users.value');

@@ -76,7 +76,6 @@ class Vault extends Component
         $this->files = Gallery::where('user_id', auth()->user()->id)->get();
     }
 
-
     public function render()
     {
         return view('livewire.vault');
