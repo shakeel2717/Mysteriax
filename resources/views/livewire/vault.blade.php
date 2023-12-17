@@ -22,10 +22,10 @@
                     </div>
                 @endif
                 <div class="form-group">
-                    <label for="attachments">Upload Media</label>
-                    <input wire:model="attachments" type="file" class="form-control-file">
+                    <label for="attachment">Upload Media</label>
+                    <input wire:model="attachment" type="file" class="form-control-file">
                 </div>
-                @if ($attachments)
+                @if ($attachment)
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary btn-sm">Upload Media</button>
                         <div class="spinner-border" wire:loading></div>
