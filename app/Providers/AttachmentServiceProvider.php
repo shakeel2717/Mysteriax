@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Gallery;
 use App\Model\Attachment;
 use Aws\CloudFront\CloudFrontClient;
 use Aws\Exception\AwsException;
@@ -19,9 +20,9 @@ class AttachmentServiceProvider extends ServiceProvider
 {
 
     public static $videoEncodingPresets = [
-        'size' => ['videoBitrate'=> 500, 'audioBitrate' => 128],
-        'balanced' => ['videoBitrate'=> 1000, 'audioBitrate' => 256],
-        'quality' => ['videoBitrate'=> 2000, 'audioBitrate' => 512],
+        'size' => ['videoBitrate' => 500, 'audioBitrate' => 128],
+        'balanced' => ['videoBitrate' => 1000, 'audioBitrate' => 256],
+        'quality' => ['videoBitrate' => 2000, 'audioBitrate' => 512],
     ];
 
     /**
@@ -127,7 +128,7 @@ class AttachmentServiceProvider extends ServiceProvider
     {
         switch ($type) {
             case 'video':
-                return ['mp4', 'avi', 'wmv', 'mpeg', 'm4v', 'moov', 'mov','mkv','asf'];
+                return ['mp4', 'avi', 'wmv', 'mpeg', 'm4v', 'moov', 'mov', 'mkv', 'asf'];
                 break;
             case 'audio':
                 return ['mp3', 'wav', 'ogg'];
@@ -181,7 +182,7 @@ class AttachmentServiceProvider extends ServiceProvider
 
         $fileExtension = $initialFileExtension = $file->guessExtension();
         $fileContent = file_get_contents($file);
-        $filePath = $directory.'/'.$fileId.'.'.$fileExtension;
+        $filePath = $directory . '/' . $fileId . '.' . $fileExtension;
 
         // Converting all images to jpegs
         if (self::getAttachmentType($fileExtension) == 'image') {
@@ -191,7 +192,7 @@ class AttachmentServiceProvider extends ServiceProvider
             if (getSetting('media.apply_watermark')) {
                 // Add watermark to post images
 
-                if(getSetting('media.watermark_image')){
+                if (getSetting('media.watermark_image')) {
                     $watermark = Image::make(self::getWatermarkPath());
                     $resizePercentage = 75; //70% less then an actual image (play with this value)
                     $watermarkSize = round($jpgImage->width() * ((100 - $resizePercentage) / 100), 2); //watermark will be $resizePercentage less then the actual width of the image
@@ -202,7 +203,7 @@ class AttachmentServiceProvider extends ServiceProvider
                     $jpgImage->insert($watermark, 'bottom-right', 30, 25);
                 }
 
-                if(getSetting('media.use_url_watermark')) {
+                if (getSetting('media.use_url_watermark')) {
                     $textWaterMark = str_replace(['https://', 'http://', 'www.'], '', route('profile', ['username' => Auth::user()->username]));
                     $textWaterMarkSize = 3 / 100 * $jpgImage->width();
                     $jpgImage->text($textWaterMark, $jpgImage->width() - 25, $jpgImage->height() - 10, function ($font) use ($textWaterMarkSize) {
@@ -218,23 +219,21 @@ class AttachmentServiceProvider extends ServiceProvider
 
             // No processing for gifs
             // TODO: Add watermarking via other lib - intervention has no support for it
-            if($fileExtension == 'gif'){
+            if ($fileExtension == 'gif') {
                 $fileExtension = 'gif';
                 $fileContent = $file;
-                $filePath = $directory.'/'.$fileId.'.'.$fileExtension;
+                $filePath = $directory . '/' . $fileId . '.' . $fileExtension;
                 $storage->put($filePath, file_get_contents($file->getRealPath()), 'public');
-            }
-            else{
+            } else {
                 // Saving rest of image types
                 $jpgImage->encode('jpg', 100);
                 $file = $jpgImage;
                 $fileExtension = 'jpg';
                 $fileContent = $file;
-                $filePath = $directory.'/'.$fileId.'.'.$fileExtension;
+                $filePath = $directory . '/' . $fileId . '.' . $fileExtension;
                 // Uploading to storage
                 $storage->put($filePath, $fileContent, 'public');
             }
-
         }
 
         // generate thumbnail
@@ -247,8 +246,8 @@ class AttachmentServiceProvider extends ServiceProvider
             });
             $img->encode('jpg', 100);
 
-            $thumbnailDir = $directory.'/'.$width.'X'.$height;
-            $thumbnailfilePath = $thumbnailDir.'/'.$fileId.'.jpg';
+            $thumbnailDir = $directory . '/' . $width . 'X' . $height;
+            $thumbnailfilePath = $thumbnailDir . '/' . $fileId . '.jpg';
             // Uploading to storage
             $storage->put($thumbnailfilePath, $img, 'public');
         }
@@ -257,25 +256,24 @@ class AttachmentServiceProvider extends ServiceProvider
         if (self::getAttachmentType($fileExtension) === 'video') {
             if (getSetting('media.enable_ffmpeg')) {
                 // Move tmp file onto local files path, as ffmpeg can't handle absolute paths
-                $filePath = $fileId.'.'.$fileExtension;
+                $filePath = $fileId . '.' . $fileExtension;
                 Storage::disk('tmp')->put($filePath, $fileContent);
 
                 $fileExtension = 'mp4';
-                $newfilePath = $directory.'/'.$fileId.'.'.$fileExtension;
+                $newfilePath = $directory . '/' . $fileId . '.' . $fileExtension;
 
                 // Converting the video
-                $video = FFMpeg::
-                fromDisk('tmp')
+                $video = FFMpeg::fromDisk('tmp')
                     ->open($filePath);
 
                 // Checking if uploaded videos do no exceed maximum length in seconds
-                if(getSetting('media.max_videos_length')){
+                if (getSetting('media.max_videos_length')) {
                     $maxLength = (int)getSetting('media.max_videos_length');
                     $videoLength = $video->getFormat()->get('duration');
-                    $videoLength = explode('.',$videoLength);
+                    $videoLength = explode('.', $videoLength);
                     $videoLength = (int)$videoLength[0];
-                    if($videoLength > $maxLength){
-                        throw new \Exception(__("Uploaded videos can not longer than :length seconds.",['length'=>$maxLength]));
+                    if ($videoLength > $maxLength) {
+                        throw new \Exception(__("Uploaded videos can not longer than :length seconds.", ['length' => $maxLength]));
                     }
                 }
 
@@ -284,7 +282,7 @@ class AttachmentServiceProvider extends ServiceProvider
                     $dimensions = $video
                         ->getVideoStream()
                         ->getDimensions();
-                    if(getSetting('media.watermark_image')) {
+                    if (getSetting('media.watermark_image')) {
                         // Add watermark to post images
                         $watermark = Image::make(self::getWatermarkPath());
                         $tmpWatermarkFile = 'watermark-' . $fileId . '-.png';
@@ -306,39 +304,35 @@ class AttachmentServiceProvider extends ServiceProvider
                         }
                     }
 
-                    if(getSetting('media.use_url_watermark')){
-                        $textWaterMark = str_replace(['https://','http://','www.'],'',route('profile',['username'=>Auth::user()->username]));
+                    if (getSetting('media.use_url_watermark')) {
+                        $textWaterMark = str_replace(['https://', 'http://', 'www.'], '', route('profile', ['username' => Auth::user()->username]));
                         $textWaterMarkSize = 3 / 100 * $dimensions->getWidth();
                         // Note: Some hosts might need to default font on public_path('/fonts/OpenSans-Semibold.ttf') instead of verdana
-                        $filter = new CustomFilter("drawtext=text='".$textWaterMark."':x=10:y=H-th-10:fontfile='".(env('FFMPEG_FONT_PATH') ?? 'Verdana')."':fontsize={$textWaterMarkSize}:fontcolor=white: x=(w-text_w)-25: y=(h-text_h)-35");
+                        $filter = new CustomFilter("drawtext=text='" . $textWaterMark . "':x=10:y=H-th-10:fontfile='" . (env('FFMPEG_FONT_PATH') ?? 'Verdana') . "':fontsize={$textWaterMarkSize}:fontcolor=white: x=(w-text_w)-25: y=(h-text_h)-35");
                         $video->addFilter($filter);
                     }
-
                 }
 
                 // Re-converting mp4 only if enforced by the admin setting
-                if($initialFileExtension == 'mp4' && !getSetting('media.enforce_mp4_conversion')){
-                    $filePath = $directory.'/'.$fileId.'.'.$fileExtension;
+                if ($initialFileExtension == 'mp4' && !getSetting('media.enforce_mp4_conversion')) {
+                    $filePath = $directory . '/' . $fileId . '.' . $fileExtension;
                     $storage->put($filePath, $fileContent, 'public');
-                }
-                else{
+                } else {
                     // Overriding default ffmpeg lib temporary_files_root behaviour
                     $ffmpegOutputLogDir = storage_path() . '/logs/ffmpeg';
                     $ffmpegPassFile = $ffmpegOutputLogDir . '/' . uniqid();
-                    if(!is_dir($ffmpegOutputLogDir)){
+                    if (!is_dir($ffmpegOutputLogDir)) {
                         mkdir($ffmpegOutputLogDir);
                     }
 
                     $videoQualityPreset = self::$videoEncodingPresets[getSetting('media.ffmpeg_video_conversion_quality_preset')];
                     $video = $video->export()
                         ->toDisk(config('filesystems.defaultFilesystemDriver'));
-                    if(getSetting('media.ffmpeg_audio_encoder') == 'aac'){
+                    if (getSetting('media.ffmpeg_audio_encoder') == 'aac') {
                         $video->inFormat((new X264('aac', 'libx264'))->setKiloBitrate($videoQualityPreset['videoBitrate'])->setAudioKiloBitrate($videoQualityPreset['audioBitrate']));
-                    }
-                    elseif(getSetting('media.ffmpeg_audio_encoder') == 'libmp3lame'){
+                    } elseif (getSetting('media.ffmpeg_audio_encoder') == 'libmp3lame') {
                         $video->inFormat((new X264('libmp3lame'))->setKiloBitrate($videoQualityPreset['videoBitrate'])->setAudioKiloBitrate($videoQualityPreset['audioBitrate']));
-                    }
-                    elseif (getSetting('media.ffmpeg_audio_encoder') == 'libfdk_aac'){
+                    } elseif (getSetting('media.ffmpeg_audio_encoder') == 'libfdk_aac') {
                         $video->inFormat((new X264('libfdk_aac', 'libx264'))->setKiloBitrate($videoQualityPreset['videoBitrate'])->setAudioKiloBitrate($videoQualityPreset['audioBitrate']));
                     }
                     $video->addFilter('-preset', 'ultrafast')
@@ -346,9 +340,8 @@ class AttachmentServiceProvider extends ServiceProvider
                         ->addFilter(['-passlogfile', $ffmpegPassFile])
                         ->save($newfilePath);
 
-                    if(file_exists($ffmpegPassFile.'-0.log')) unlink($ffmpegPassFile.'-0.log');
-                    if(file_exists($ffmpegPassFile.'-1.log')) unlink($ffmpegPassFile.'-1.log');
-
+                    if (file_exists($ffmpegPassFile . '-0.log')) unlink($ffmpegPassFile . '-0.log');
+                    if (file_exists($ffmpegPassFile . '-1.log')) unlink($ffmpegPassFile . '-1.log');
                 }
 
                 Storage::disk('tmp')->delete($filePath);
@@ -357,7 +350,7 @@ class AttachmentServiceProvider extends ServiceProvider
                 }
                 $filePath = $newfilePath;
             } else {
-                $filePath = $directory.'/'.$fileId.'.'.$fileExtension;
+                $filePath = $directory . '/' . $fileId . '.' . $fileExtension;
                 $storage->put($filePath, $fileContent, 'public');
             }
 
@@ -365,7 +358,7 @@ class AttachmentServiceProvider extends ServiceProvider
         }
 
         if (in_array(self::getAttachmentType($fileExtension), ['audio', 'document'])) {
-            $filePath = $directory.'/'.$fileId.'.'.$fileExtension;
+            $filePath = $directory . '/' . $fileId . '.' . $fileExtension;
             $storage->put($filePath, $fileContent, 'public');
         }
 
@@ -379,6 +372,22 @@ class AttachmentServiceProvider extends ServiceProvider
             'driver' => AttachmentServiceProvider::getStorageProviderID($storageDriver),
         ]);
 
+        // // Uploading to storage for the vault table (original image)
+        // $vaultPath = 'uploads/vault/' . auth()->user()->username . '/' . $fileId . '.' . $fileExtension;
+        // $storage->put($vaultPath, $fileContent, 'public');
+
+        $sourcePath = $filePath;
+        $destinationPath = 'uploads/vault/' . auth()->user()->username . "/" . $attachment->filename;
+        Storage::copy($sourcePath, $destinationPath);
+
+        // Creating the db entry for the vault table
+        Gallery::create([
+            'user_id' => Auth::id(),
+            'title' => $attachment->filename, // You may adjust this based on your requirements
+            'type' => self::getAttachmentType($fileExtension),
+            'image' => $destinationPath,
+        ]);
+
         return $attachment;
     }
 
@@ -390,15 +399,14 @@ class AttachmentServiceProvider extends ServiceProvider
     public static function getWatermarkPath()
     {
         $watermark_image = getSetting('media.watermark_image');
-        if($watermark_image){
+        if ($watermark_image) {
             if (strpos($watermark_image, 'download_link')) {
                 $watermark_image = json_decode($watermark_image);
                 if ($watermark_image) {
                     $watermark_image = Storage::disk(config('filesystems.defaultFilesystemDriver'))->path($watermark_image[0]->download_link);
                 }
             }
-        }
-        else{
+        } else {
             $watermark_image = public_path('img/logo-black.png');
         }
         return $watermark_image;
@@ -420,7 +428,7 @@ class AttachmentServiceProvider extends ServiceProvider
                 'https://' . getSetting('storage.cdn_domain_name') . '/' . self::getThumbnailFilenameByAttachmentAndResolution($attachment, $width, $height, $basePath)
             );
         } else {
-            return str_replace($basePath, $basePath.$width.'X'.$height.'/', $attachment->path);
+            return str_replace($basePath, $basePath . $width . 'X' . $height . '/', $attachment->path);
         }
     }
 
@@ -452,7 +460,7 @@ class AttachmentServiceProvider extends ServiceProvider
      */
     private static function getThumbnailFilenameByAttachmentAndResolution($attachment, $width, $height, $basePath = 'posts/images/')
     {
-        return str_replace($basePath, $basePath.$width.'X'.$height.'/', $attachment->filename);
+        return str_replace($basePath, $basePath . $width . 'X' . $height . '/', $attachment->filename);
     }
 
     /**
@@ -465,7 +473,7 @@ class AttachmentServiceProvider extends ServiceProvider
     {
 
         // Changing to attachment file system driver, if different from the configured one
-        if($attachment->driver !== self::getStorageProviderID(getSetting('storage.driver'))){
+        if ($attachment->driver !== self::getStorageProviderID(getSetting('storage.driver'))) {
             $oldDriver = config('filesystems.default');
             SettingsServiceProvider::setDefaultStorageDriver(self::getStorageProviderName($attachment->driver));
         }
@@ -474,29 +482,25 @@ class AttachmentServiceProvider extends ServiceProvider
         if ($attachment->driver == Attachment::S3_DRIVER) {
             if (getSetting('storage.aws_cdn_enabled') && getSetting('storage.aws_cdn_presigned_urls_enabled')) {
                 $fileUrl = self::signAPrivateDistributionPolicy(
-                    'https://'.getSetting('storage.cdn_domain_name').'/'.$attachment->filename
+                    'https://' . getSetting('storage.cdn_domain_name') . '/' . $attachment->filename
                 );
             } elseif (getSetting('storage.aws_cdn_enabled')) {
-                $fileUrl = 'https://'.getSetting('storage.cdn_domain_name').'/'.$attachment->filename;
+                $fileUrl = 'https://' . getSetting('storage.cdn_domain_name') . '/' . $attachment->filename;
             } else {
-                $fileUrl = 'https://'.getSetting('storage.aws_bucket_name').'.s3.'.getSetting('storage.aws_region').'.amazonaws.com/'.$attachment->filename;
+                $fileUrl = 'https://' . getSetting('storage.aws_bucket_name') . '.s3.' . getSetting('storage.aws_region') . '.amazonaws.com/' . $attachment->filename;
             }
-        }
-        elseif ($attachment->driver == Attachment::WAS_DRIVER || $attachment->driver == Attachment::DO_DRIVER) {
+        } elseif ($attachment->driver == Attachment::WAS_DRIVER || $attachment->driver == Attachment::DO_DRIVER) {
             $fileUrl = Storage::url($attachment->filename);
-        }
-        elseif($attachment->driver == Attachment::MINIO_DRIVER){
-            $fileUrl = rtrim(getSetting('storage.minio_endpoint'), '/').'/'.getSetting('storage.minio_bucket_name').'/'.$attachment->filename;
-        }
-        elseif($attachment->driver == Attachment::PUSHR_DRIVER){
-            $fileUrl = rtrim(getSetting('storage.pushr_cdn_hostname'), '/').'/'.$attachment->filename;
-        }
-        elseif ($attachment->driver == Attachment::PUBLIC_DRIVER) {
+        } elseif ($attachment->driver == Attachment::MINIO_DRIVER) {
+            $fileUrl = rtrim(getSetting('storage.minio_endpoint'), '/') . '/' . getSetting('storage.minio_bucket_name') . '/' . $attachment->filename;
+        } elseif ($attachment->driver == Attachment::PUSHR_DRIVER) {
+            $fileUrl = rtrim(getSetting('storage.pushr_cdn_hostname'), '/') . '/' . $attachment->filename;
+        } elseif ($attachment->driver == Attachment::PUBLIC_DRIVER) {
             $fileUrl = Storage::disk('public')->url($attachment->filename);
         }
 
         // Changing filesystem driver back, if needed
-        if($attachment->driver !== self::getStorageProviderID(getSetting('storage.driver'))) {
+        if ($attachment->driver !== self::getStorageProviderID(getSetting('storage.driver'))) {
             SettingsServiceProvider::setDefaultStorageDriver($oldDriver);
         }
         return $fileUrl;
@@ -554,7 +558,7 @@ class AttachmentServiceProvider extends ServiceProvider
     ]
 }
 POLICY;
-        $privateKey = base_path().'/'.getSetting('storage.aws_cdn_private_key_path');
+        $privateKey = base_path() . '/' . getSetting('storage.aws_cdn_private_key_path');
         $keyPairId = getSetting('storage.aws_cdn_key_pair_id');
 
         $cloudFrontClient = new CloudFrontClient([
@@ -572,52 +576,52 @@ POLICY;
         );
     }
 
-    public static function getStorageProviderID($storageDriver){
-        if($storageDriver)
-            if($storageDriver == 'public'){
+    public static function getStorageProviderID($storageDriver)
+    {
+        if ($storageDriver)
+            if ($storageDriver == 'public') {
                 return Attachment::PUBLIC_DRIVER;
             }
-        if($storageDriver == 's3'){
+        if ($storageDriver == 's3') {
             return Attachment::S3_DRIVER;
         }
-        if($storageDriver == 'wasabi'){
+        if ($storageDriver == 'wasabi') {
             return Attachment::WAS_DRIVER;
         }
-        if($storageDriver == 'do_spaces'){
+        if ($storageDriver == 'do_spaces') {
             return Attachment::DO_DRIVER;
         }
-        if($storageDriver == 'minio'){
+        if ($storageDriver == 'minio') {
             return Attachment::MINIO_DRIVER;
         }
-        if($storageDriver == 'pushr'){
+        if ($storageDriver == 'pushr') {
             return Attachment::PUSHR_DRIVER;
-        }
-        else{
+        } else {
             return Attachment::PUBLIC_DRIVER;
         }
     }
 
-    public static function getStorageProviderName($storageDriver){
-        if($storageDriver)
-            if($storageDriver == Attachment::PUBLIC_DRIVER){
+    public static function getStorageProviderName($storageDriver)
+    {
+        if ($storageDriver)
+            if ($storageDriver == Attachment::PUBLIC_DRIVER) {
                 return 'public';
             }
-        if($storageDriver == Attachment::S3_DRIVER){
+        if ($storageDriver == Attachment::S3_DRIVER) {
             return 's3';
         }
-        if($storageDriver == Attachment::WAS_DRIVER){
+        if ($storageDriver == Attachment::WAS_DRIVER) {
             return 'wasabi';
         }
-        if($storageDriver == Attachment::DO_DRIVER){
+        if ($storageDriver == Attachment::DO_DRIVER) {
             return 'do_spaces';
         }
-        if($storageDriver == Attachment::MINIO_DRIVER){
+        if ($storageDriver == Attachment::MINIO_DRIVER) {
             return 'minio';
         }
-        if($storageDriver == Attachment::PUSHR_DRIVER){
+        if ($storageDriver == Attachment::PUSHR_DRIVER) {
             return 'pushr';
-        }
-        else{
+        } else {
             return 'public';
         }
     }
@@ -629,15 +633,15 @@ POLICY;
      * @param $newFileName
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
-    public static function pushrCDNCopy($attachment, $newFileName){
+    public static function pushrCDNCopy($attachment, $newFileName)
+    {
         $storage = Storage::disk(AttachmentServiceProvider::getStorageProviderName($attachment->driver));
         // Pushr logic - Copy alternative as S3Adapter fails to do ->copy operations
         $remoteFile = $storage->get($attachment->filename);
         $localStorage = Storage::disk('public');
-        $tmpFile = "tmp/".$attachment->id . '.' . $attachment->type;
+        $tmpFile = "tmp/" . $attachment->id . '.' . $attachment->type;
         $localStorage->put($tmpFile, $remoteFile);
         $storage->put($newFileName, $localStorage->get($tmpFile), 'public');
         $localStorage->delete($tmpFile);
     }
-
 }
