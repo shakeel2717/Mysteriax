@@ -11,12 +11,7 @@
             cursor: pointer;
         }
     </style>
-    @livewireStyles()
 @stop
-
-@section('scripts')
-    @livewireScripts()
-@endsection
 
 @section('content')
     <div class="row">
