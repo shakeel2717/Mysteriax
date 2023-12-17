@@ -306,7 +306,7 @@ class ListsHelperServiceProvider extends ServiceProvider
             return 'unfollow';
         } else {
             if ($getTranslated) {
-                return __('Follow');
+                return __('Subscribe for Free');
             }
             return 'follow';
         }
