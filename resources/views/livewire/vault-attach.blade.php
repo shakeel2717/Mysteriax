@@ -14,14 +14,13 @@
                             <div class="card-body p-0">
                                 <div class="image-container" style="position: relative">
                                     @if ($file->type == 'image')
-                                        <img src="{{ asset('storage/' . $file->image) }}"
-                                            class="fixed-image img-thumbnail">
+                                        <img src="{{ Storage::url($file->image) }}" class="fixed-image img-thumbnail">
                                     @else
                                         <img src="{{ asset('img/video.png') }}" class="fixed-image img-thumbnail">
                                     @endif
                                     <div class="button-sender w-100" style="position: absolute; bottom:0;">
                                         <button class="btn btn-primary btn-sm shadow"
-                                            onclick="sendImageBlob('{{ asset('storage/' . $file->image) }}','{{ $file->image }}')"
+                                            onclick="sendImageBlob('{{ Storage::url($file->image) }}','{{ $file->image }}')"
                                             style="">Send</button>
                                     </div>
                                 </div>
