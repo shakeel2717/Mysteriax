@@ -55,7 +55,13 @@ var FileUpload = {
                     // Get the latest value of isFromVault and update the headers
                     const isFromVault = $('#isFromVaultInput').val();
                     xhr.setRequestHeader('isFromVault', isFromVault);
-                    document.getElementById("isFromVaultInput").value = 0;
+                    var isFromVaultInput = document.getElementById("isFromVaultInput");
+
+                    if (isFromVaultInput !== null) {
+                        isFromVaultInput.value = 0;
+                    } else {
+                        console.warn("Element with id 'isFromVaultInput' not found.");
+                    }
                 });
                 // FileUpload.attachaments
                 FileUpload.attachaments.map((element) => {
