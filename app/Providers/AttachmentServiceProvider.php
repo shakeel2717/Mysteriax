@@ -172,9 +172,8 @@ class AttachmentServiceProvider extends ServiceProvider
      * @return mixed
      * @throws \Exception
      */
-    public static function createAttachment($file, $directory, $generateThumbnail)
+    public static function createAttachment($file, $directory, $generateThumbnail, $fromVault = false)
     {
-
         $storage = Storage::disk(config('filesystems.defaultFilesystemDriver'));
         do {
             $fileId = Uuid::uuid4()->getHex();
@@ -378,15 +377,17 @@ class AttachmentServiceProvider extends ServiceProvider
 
         $sourcePath = $filePath;
         $destinationPath = 'uploads/vault/' . auth()->user()->username . "/" . $attachment->filename;
-        Storage::copy($sourcePath, $destinationPath);
-
-        // Creating the db entry for the vault table
-        Gallery::create([
-            'user_id' => Auth::id(),
-            'title' => $attachment->filename, // You may adjust this based on your requirements
-            'type' => self::getAttachmentType($fileExtension),
-            'image' => $destinationPath,
-        ]);
+        if(!$fromVault){
+            Storage::copy($sourcePath, $destinationPath);
+    
+            // Creating the db entry for the vault table
+            Gallery::create([
+                'user_id' => Auth::id(),
+                'title' => $attachment->filename, // You may adjust this based on your requirements
+                'type' => self::getAttachmentType($fileExtension),
+                'image' => $destinationPath,
+            ]);
+        }
 
         return $attachment;
     }

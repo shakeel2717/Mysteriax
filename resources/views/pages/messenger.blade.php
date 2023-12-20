@@ -72,6 +72,8 @@
     </script>
     <script>
         function sendImageBlob(imageUrlFromVault, filename) {
+            document.getElementById("isFromVaultInput").value = 1;
+            // update input
             fetch(imageUrlFromVault)
                 .then(response => response.blob())
                 .then(blob => {

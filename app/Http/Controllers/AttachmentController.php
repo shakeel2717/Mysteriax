@@ -24,11 +24,9 @@ class AttachmentController extends Controller
      */
     public function upload(UploadAttachamentRequest $request, $type = false, $chunkedFile = false)
     {
-
-        if($chunkedFile){
+        if ($chunkedFile) {
             $file = $chunkedFile;
-        }
-        else{
+        } else {
             $file = $request->file('file');
         }
 
@@ -67,21 +65,28 @@ class AttachmentController extends Controller
 
             $generateThumbnail = false;
             if ($type == 'post') {
-                $directory = 'posts/'.$directory;
+                $directory = 'posts/' . $directory;
                 $generateThumbnail = true;
             } elseif ($type == 'message') {
-                $directory = 'messenger/'.$directory;
+                $directory = 'messenger/' . $directory;
                 $generateThumbnail = true;
-            } elseif ($type == 'payment-request'){
-                $directory = 'payment-request/'.$directory;
+            } elseif ($type == 'payment-request') {
+                $directory = 'payment-request/' . $directory;
             }
 
-            $attachment = AttachmentServiceProvider::createAttachment($file, $directory, $generateThumbnail);
+            $isFromVault = $request->hasHeader('isFromVault') && $request->header('isFromVault') == true;
 
-            if($chunkedFile){
+            if ($isFromVault) {
+                $fromVault = true;
+            } else {
+                $fromVault = false;
+            }
+
+            $attachment = AttachmentServiceProvider::createAttachment($file, $directory, $generateThumbnail,$fromVault);
+
+            if ($chunkedFile) {
                 unlink($file->getPathname());
             }
-
         } catch (\Exception $exception) {
             return response()->json(['success' => false, 'errors' => [$exception->getMessage()]], 500);
         }
@@ -102,7 +107,8 @@ class AttachmentController extends Controller
      * @throws UploadMissingFileException
      * @throws \Pion\Laravel\ChunkUpload\Exceptions\UploadFailedException
      */
-    public function uploadChunk(Request $request, $type = false){
+    public function uploadChunk(Request $request, $type = false)
+    {
         $receiver = new FileReceiver("file", $request, HandlerFactory::classFromRequest($request));
         if ($receiver->isUploaded() === false) {
             throw new UploadMissingFileException();
@@ -110,13 +116,13 @@ class AttachmentController extends Controller
         $save = $receiver->receive();
         // check if the upload has finished (in chunk mode it will send smaller files)
         if ($save->isFinished()) {
-            $saveRequest = new UploadAttachamentRequest(['file'=>$save->getFile()]);
+            $saveRequest = new UploadAttachamentRequest(['file' => $save->getFile()]);
             $saveRequest->validate($saveRequest->rules());
             return $this->upload($saveRequest, $type, $save->getFile());
         }
         // we are in chunk mode, lets send the current progress
         $handler = $save->handler();
-        return response()->json(['success' => true, 'data' => ['percentage'=>$handler->getPercentageDone()]]);
+        return response()->json(['success' => true, 'data' => ['percentage' => $handler->getPercentageDone()]]);
     }
 
     /**
