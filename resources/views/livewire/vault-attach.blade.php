@@ -34,7 +34,7 @@
                     {{ $files->links() }}
                 </div>
             </div>
-            <input type="text" id="isFromVaultInput" name="isFromVaultInput" value="0">
+            <input type="hidden" id="isFromVaultInput" name="isFromVaultInput" value="0">
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
