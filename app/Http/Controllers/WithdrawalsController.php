@@ -118,7 +118,7 @@ class WithdrawalsController extends Controller
 
                     info("Stipe Transfer Start");
                     \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
-                    $stripe = new \Stripe\stripeClient(env('STRIPE_SECRET'));
+                    $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
                     $transfer = \Stripe\Transfer::create([
                         'amount' => ($amount - $fee) * 100,
                         'currency' => 'usd',
