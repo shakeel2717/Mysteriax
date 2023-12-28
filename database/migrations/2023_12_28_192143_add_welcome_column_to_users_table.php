@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddStripeToUsersTable extends Migration
+class AddWelcomeColumnToUsersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,11 +14,9 @@ class AddStripeToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->after('settings', function () use ($table) {
-                // $table->boolean('stripe_connect')->default(0)->after('settings');
-                // $table->string('stripe_id')->nullable()->after('stripe_connect');
-                // $table->string('stripe_link')->nullable()->after('stripe_id');
-            });
+            $table->text("welcome_message")->nullable()->after("username");
+            $table->text("welcome_message_price")->nullable()->after("welcome_message");
+            $table->text("attachment")->nullable()->after("welcome_message_price");
         });
     }
 

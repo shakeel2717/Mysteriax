@@ -87,7 +87,7 @@
                                 ])
                             </li>
                             <li class="custom-nav-link">
-                                <a class="text-muted" href="{{ route('my.settings', ['type' => 'account']) }}">Welcome
+                                <a class="text-muted" href="{{ route('my.settings', ['type' => 'welcome']) }}">Welcome
                                     Messages</a>
                                 @include('elements.icon', [
                                     'icon' => 'caret-forward-outline',

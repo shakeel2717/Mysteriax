@@ -52,6 +52,7 @@ class SettingsController extends Controller
         'privacy' => ['heading' => 'Your privacy and safety matters', 'icon' => 'shield'],
         'withdraw' => ['heading' => 'Withdraw Your Funds', 'icon' => 'wallet'],
         'verify' => ['heading' => 'Get verified and start to earning now', 'icon' => 'checkmark'],
+        'welcome' => ['heading' => 'Set a Welcome Message for your Profile', 'icon' => 'checkmark'],
     ];
 
     public function __construct()
@@ -389,6 +390,35 @@ class SettingsController extends Controller
         Auth::user()->update(['password' => Hash::make($request->input('confirm_password'))]);
 
         return back()->with('success', __('Settings saved.'));
+    }
+
+    public function saveWelcome(Request $request)
+    {
+        // adding testing welcome message
+        $user = User::find(auth()->id());
+        $user->welcome_message = $request->input("message");
+        $user->welcome_message_price = $request->input("price");
+
+        $attachment = $request->file("attachment");
+        if ($attachment) {
+            
+            $id = Uuid::uuid4()->getHex();
+            $newFileName = 'messenger/images/' . $id . '.' . $attachment->getClientOriginalExtension();
+
+            Storage::disk(getSetting('storage.driver'))->put($newFileName, file_get_contents($attachment));
+
+            $thumbnailDir = 'messenger/images/150X150/';
+            $thumbnailFilePath = $thumbnailDir . $id . '.' . $attachment->getClientOriginalExtension();
+
+            if (Storage::disk(getSetting('storage.driver'))->exists($newFileName)) {
+                Storage::disk(getSetting('storage.driver'))->copy($newFileName, $thumbnailFilePath);
+            }
+
+            $user->attachment = $newFileName;
+        }
+        $user->save();
+
+        return back()->with("success", "Welcome Message Updated Successfully");
     }
 
     /**

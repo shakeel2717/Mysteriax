@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Helpers\PaymentHelper;
 use App\Http\Requests\CreateTransactionRequest;
+use App\Model\Attachment;
 use App\Model\Subscription;
 use App\Model\Transaction;
+use App\Model\UserMessage;
 use App\Providers\InvoiceServiceProvider;
 use App\Providers\NotificationServiceProvider;
 use App\Providers\PaymentRequestServiceProvider;
@@ -19,6 +21,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Stripe\StripeClient;
 use Yabacon\Paystack;
+use Ramsey\Uuid\Uuid;
 
 class PaymentsController extends Controller
 {
@@ -221,6 +224,35 @@ class PaymentsController extends Controller
                     }
                 } catch (\Exception $exception) {
                     Log::error("Failed generating invoice for transaction: " . $transaction->id . " error: " . $exception->getMessage());
+                }
+            }
+
+            // checking if this creator have active welcome message
+            $buyerUser = User::find($transaction['sender_user_id']);
+            $creatorUser = User::find($transaction['recipient_user_id']);
+            if ($creatorUser->welcome_message != "") {
+                $message = UserMessage::firstOrCreate([
+                    'sender_id' => $creatorUser->id,
+                    'receiver_id' => $buyerUser->id,
+                    'message' => $creatorUser->welcome_message,
+                    'price' => $creatorUser->welcome_message_price,
+                ]);
+
+                // checking if attachment is present, then send it 
+                if ($creatorUser->attachment != "") {
+                    $id = Uuid::uuid4()->getHex();
+                    $newFileName = $creatorUser->attachment;
+                    if ($message->wasRecentlyCreated) {
+                        // 1. Create new attachment
+                        Attachment::create([
+                            'id' => $id,
+                            'user_id' => $creatorUser->id,
+                            'filename' => $newFileName,
+                            'driver' => 0,
+                            'type' => "jpg",
+                            'message_id' => $message->id,
+                        ]);
+                    }
                 }
             }
         } catch (\Exception $exception) {
@@ -899,35 +931,35 @@ class PaymentsController extends Controller
     public function stripeConnect(Request $request)
     {
         // try {
-            $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
-            $account = $stripe->accounts->create([
-                'type' => 'express',
-                'country' => getUserCountry('geoplugin_countryCode') ?? "US",
-                'email' => auth()->user()->email,
-                'capabilities' => [
-                    'card_payments' => ['requested' => true],
-                    'transfers' => ['requested' => true],
-                ],
-            ]);
+        $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
+        $account = $stripe->accounts->create([
+            'type' => 'express',
+            'country' => getUserCountry('geoplugin_countryCode') ?? "US",
+            'email' => auth()->user()->email,
+            'capabilities' => [
+                'card_payments' => ['requested' => true],
+                'transfers' => ['requested' => true],
+            ],
+        ]);
 
 
-            Log::info(json_encode($account));
+        Log::info(json_encode($account));
 
-            auth()->user()->stripe_id = $account->id;
+        auth()->user()->stripe_id = $account->id;
 
-            $link = $stripe->accountLinks->create([
-                'account' => $account->id,
-                'refresh_url' => env('STRIPE_LINK'),
-                'return_url' => env('STRIPE_RETURN'),
-                'type' => 'account_onboarding',
-            ]);
-            Log::info(json_encode($link));
-            auth()->user()->stripe_link = $link['url'];
-            auth()->user()->save();
+        $link = $stripe->accountLinks->create([
+            'account' => $account->id,
+            'refresh_url' => env('STRIPE_LINK'),
+            'return_url' => env('STRIPE_RETURN'),
+            'type' => 'account_onboarding',
+        ]);
+        Log::info(json_encode($link));
+        auth()->user()->stripe_link = $link['url'];
+        auth()->user()->save();
 
-            session(['stripeConnection' => $link['url']]);
+        session(['stripeConnection' => $link['url']]);
 
-            return redirect()->away($link['url']);
+        return redirect()->away($link['url']);
         // } catch (\Exception $e) {
         //     return "API Error, Please Contact Support";
         // }
