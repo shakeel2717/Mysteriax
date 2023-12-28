@@ -29,6 +29,7 @@
                                     <img width="300"
                                         src="https://newmx.nyc3.digitaloceanspaces.com/settings/November2023/dXARDcyg3yZLe3mVXTH2.png"
                                         alt="Logo">
+                                        <h5 class="text-uppercase">the Home of all your Creators</h5>
                                 </div>
                                 @include('auth.login-form')
                                 @include('auth.social-login-box')
