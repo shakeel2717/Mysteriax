@@ -135,3 +135,24 @@ function getUserStripeStatus()
         return false;
     }
 }
+
+
+function detectFileType($fileName) {
+    $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+
+    $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
+    $videoExtensions = ['mp4', 'avi', 'mov', 'wmv', 'mkv'];
+
+    if (in_array(strtolower($extension), $imageExtensions)) {
+        return 'image';
+    } elseif (in_array(strtolower($extension), $videoExtensions)) {
+        return 'video';
+    } else {
+        return 'unknown';
+    }
+}
+
+function getFileTypeFromFileName($fileName) {
+    $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+    return strtolower($extension);
+}
