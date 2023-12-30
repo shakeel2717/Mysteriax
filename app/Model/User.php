@@ -153,7 +153,7 @@ class User extends \TCG\Voyager\Models\User implements MustVerifyEmail
     public function getIsCreator()
     {
         $user = User::find($this->id);
-        $verify = $user->verification()->firstOr(function(){
+        $verify = $user->verification()->firstOr(function () {
             return false;
         });
         if ($verify && $verify->status == 'verified') {
@@ -237,5 +237,10 @@ class User extends \TCG\Voyager\Models\User implements MustVerifyEmail
     public function offer()
     {
         return $this->hasOne('App\Model\CreatorOffer');
+    }
+
+    public function pending_payments()
+    {
+        return $this->hasMany(Payment::class)->where('status', false);
     }
 }

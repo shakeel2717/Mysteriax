@@ -41,6 +41,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('cron:process_expiring_streams')->everyFiveMinutes();
         $schedule->command('cron:end_streams')->everyFiveMinutes();
         $schedule->command('generateSitemap')->daily();
+        $schedule->command('clear:payments')->daily();
     }
 
     /**

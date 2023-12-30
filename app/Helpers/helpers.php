@@ -1,5 +1,6 @@
 <?php
 
+use App\Payment;
 use App\Providers\GenericHelperServiceProvider;
 use App\Providers\InstallerServiceProvider;
 use Illuminate\Support\Facades\Cache;
@@ -137,7 +138,8 @@ function getUserStripeStatus()
 }
 
 
-function detectFileType($fileName) {
+function detectFileType($fileName)
+{
     $extension = pathinfo($fileName, PATHINFO_EXTENSION);
 
     $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
@@ -152,7 +154,20 @@ function detectFileType($fileName) {
     }
 }
 
-function getFileTypeFromFileName($fileName) {
+function getFileTypeFromFileName($fileName)
+{
     $extension = pathinfo($fileName, PATHINFO_EXTENSION);
     return strtolower($extension);
+}
+
+function getCreatorBalance($creator_id)
+{
+    $payment = Payment::where('user_id', $creator_id)->where('status', true)->sum('amount');
+    return $payment;
+}
+
+function getCreatorPendingBalance($creator_id)
+{
+    $payment = Payment::where('user_id', $creator_id)->where('status', false)->sum('amount');
+    return $payment;
 }

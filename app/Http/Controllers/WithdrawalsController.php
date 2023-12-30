@@ -23,7 +23,7 @@ class WithdrawalsController extends Controller
     public function requestWithdrawal(CreateWithdrawalRequest $request)
     {
         try {
-            $amount = $request->request->get('amount');
+            $amount = getCreatorBalance(Auth::id());
             $message = $request->request->get('message');
             $identifier = $request->request->get('identifier');
             $method = $request->request->get('method');
@@ -43,7 +43,7 @@ class WithdrawalsController extends Controller
                     );
                 }
 
-                if (floatval($amount) > $user->wallet->total) {
+                if (floatval($amount) > getCreatorBalance(Auth::id())) {
                     return response()->json(['success' => false, 'message' => __('You cannot withdraw this amount, try with a lower one')]);
                 }
 

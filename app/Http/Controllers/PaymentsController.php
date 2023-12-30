@@ -8,6 +8,7 @@ use App\Model\Attachment;
 use App\Model\Subscription;
 use App\Model\Transaction;
 use App\Model\UserMessage;
+use App\Payment;
 use App\Providers\InvoiceServiceProvider;
 use App\Providers\NotificationServiceProvider;
 use App\Providers\PaymentRequestServiceProvider;
@@ -196,6 +197,15 @@ class PaymentsController extends Controller
                 default:
                     return $this->paymentHandler->redirectByTransaction($transaction);
             }
+
+            info("Payment Init");
+
+            // adding transaction for creator in pending to withdraw
+            $creatorPayment = new Payment();
+            $creatorPayment->user_id = $transaction->recipient_user_id;
+            $creatorPayment->amount = $transaction->amount;
+            $creatorPayment->save();
+            
             $transaction->save();
 
             if (
