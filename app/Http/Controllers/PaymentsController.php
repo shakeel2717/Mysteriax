@@ -8,6 +8,7 @@ use App\Model\Attachment;
 use App\Model\Subscription;
 use App\Model\Transaction;
 use App\Model\UserMessage;
+use App\Model\Wallet;
 use App\Payment;
 use App\Providers\InvoiceServiceProvider;
 use App\Providers\NotificationServiceProvider;
@@ -205,7 +206,13 @@ class PaymentsController extends Controller
             $creatorPayment->user_id = $transaction->recipient_user_id;
             $creatorPayment->amount = $transaction->amount;
             $creatorPayment->save();
-            
+
+            // update creator wallet balance
+            $creatorAccount = User::find($transaction->recipient_user_id);
+            $creatorWallet = Wallet::find($creatorAccount->wallet->id);
+            $creatorWallet->total -= $transaction->amount;
+            $creatorWallet->save();
+
             $transaction->save();
 
             if (
