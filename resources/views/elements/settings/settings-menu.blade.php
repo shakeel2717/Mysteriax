@@ -97,9 +97,26 @@
                             </li>
                         </ul>
                     </div>
+                    <div class="col-12 mt-0 ml-2 settings-menu w-100">
+                        <h3 class="">Referrals</h3>
+                    </div>
+                    <div class="p-4 w-100">
+                        <ul class="text-muted list-unstyled d-flex flex-column fw-bold" style="gap: 20px;">
+                            <li class="custom-nav-link">
+                                <a class="text-muted" href="{{ route('my.settings', ['type' => 'referral']) }}">Referral
+                                    Code</a>
+                                @include('elements.icon', [
+                                    'icon' => 'caret-forward-outline',
+                                    'variant' => 'small',
+                                    'classes' => 'mr-2',
+                                ])
+                            </li>
+                        </ul>
+                    </div>
                 @else
                     <div class="col-12 mt-0 ml-2 settings-menu w-100">
-                        <a href="{{ route('my.settings', ['type' => 'verify']) }}" class="btn btn-dark border border-white rounded-0 p-2">Become a Creator</a>
+                        <a href="{{ route('my.settings', ['type' => 'verify']) }}"
+                            class="btn btn-dark border border-white rounded-0 p-2">Become a Creator</a>
                     </div>
                 @endif
             </div>
