@@ -162,7 +162,7 @@
                             <th>Date</th>
                             <th>Type of Purchase</th>
                             <th>Gross</th>
-                            <th>Net</th>
+                            {{-- <th>Net</th> --}}
                             <th>User</th>
                         </tr>
                     </thead>
@@ -179,7 +179,7 @@
                                 <td>{{ $transaction->created_at->diffForHumans() }}</td>
                                 <td>{{ strtoupper($transaction->type) }}</td>
                                 <td>${{ number_format($transaction->amount, 2) }}</td>
-                                <td>${{ number_format($transaction->amount, 2) }}</td>
+                                {{-- <td>${{ number_format($transaction->amount, 2) }}</td> --}}
                                 <td>{{ $transaction->sender->name }}</td>
                             </tr>
                         @endforeach
