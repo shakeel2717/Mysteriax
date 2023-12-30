@@ -56,8 +56,14 @@ class MessengerController extends Controller
 
         $availableContacts = $this->getUserSearch($request);
 
-        if($userId){
+        if ($userId) {
             $lastContactID = $userId;
+            $message = UserMessage::create([
+                'sender_id' => Auth::user()->id,
+                'receiver_id' => $userId,
+                'message' => '',
+                'price' => 0
+            ]);
         }
 
         Javascript::put([
@@ -259,6 +265,12 @@ class MessengerController extends Controller
                 $message = self::cleanUpMessageData($message);
                 return $message;
             });
+
+        // removing all empty messages
+        $removeEmptyMessages = UserMessage::where('message', '')->get();
+        foreach ($removeEmptyMessages as $removeEmptyMessage) {
+            $removeEmptyMessage->delete();
+        }
 
         return response()->json([
             'status' => 'success',
