@@ -51,6 +51,7 @@ class User extends \TCG\Voyager\Models\User implements MustVerifyEmail
         'email_verified_at' => 'datetime',
         'public_profile' => 'boolean',
         'settings' => 'array',
+        'role_id' => 'integer',
     ];
 
     /*
