@@ -15,6 +15,10 @@
 
 use App\Http\Controllers\EarningController;
 
+// Route::get('/test', function(){
+
+// });
+
 Route::group(['prefix' => 'admin', 'middleware' => 'jsVars'], function () {
     Voyager::routes();
     Route::get('/metrics/new/users/value', 'MetricsController@newUsersValue')->name('admin.metrics.new.users.value');
@@ -74,6 +78,7 @@ Route::group(['middleware' => ['auth','verified','2fa']], function () {
         // Profile save
         Route::get('/settings/{type?}', ['uses' => 'SettingsController@index', 'as'   => 'settings']);
         Route::post('/settings/account/save', ['uses' => 'SettingsController@saveAccount', 'as'   => 'settings.account.save']);
+        Route::post('/settings/welcome/save', ['uses' => 'SettingsController@saveWelcome', 'as'   => 'settings.welcome.save']);
 
         /*
          * (My) Notifications
@@ -85,6 +90,7 @@ Route::group(['middleware' => ['auth','verified','2fa']], function () {
          */
         Route::group(['prefix' => 'messenger', 'as' => 'messenger.'], function () {
             Route::get('/', ['uses' => 'MessengerController@index', 'as' => 'get']);
+            Route::get('/show/{user?}', ['uses' => 'MessengerController@index', 'as' => 'show']);
             Route::get('/fetchContacts', ['uses' => 'MessengerController@fetchContacts', 'as' => 'fetch']);
             Route::get('/fetchMessages/{userID}', 'MessengerController@fetchMessages', ['as' => 'fetch.user']);
             Route::post('/sendMessage', 'MessengerController@sendMessage', ['as' => 'send']);

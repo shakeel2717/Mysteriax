@@ -12,8 +12,8 @@ Dropzone.autoDiscover = false;
 var FileUpload = {
 
     attachaments: [],
-    myDropzone : null,
-    isLoading:false,
+    myDropzone: null,
+    isLoading: false,
     state: {},
 
     /**
@@ -21,13 +21,13 @@ var FileUpload = {
      * @param selector
      * @param url
      */
-    initDropZone:function (selector,url, isChunkUpload = false) {
+    initDropZone: function (selector, url, isChunkUpload = false) {
 
         // Prepping chunk uploads, if enabled by admin
         let chunkSize = 1024;
-        if(isChunkUpload){
+        if (isChunkUpload) {
             chunkSize = mediaSettings.upload_chunk_size * 1000000;
-            url = url.replace('/upload/','/uploadChunked/');
+            url = url.replace('/upload/', '/uploadChunked/');
         }
 
         FileUpload.myDropzone = new Dropzone(selector, {
@@ -37,7 +37,7 @@ var FileUpload = {
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            clickable:['.file-upload-button'],
+            clickable: ['.file-upload-button'],
             previewsContainer: ".dropzone-previews",
             maxFilesize: mediaSettings.max_file_upload_size, // MB
             addRemoveLinks: true,
@@ -49,17 +49,30 @@ var FileUpload = {
             parallelChunkUploads: false,
             retryChunks: false,
             retryChunksLimit: 2,
-            init: function() {
+            init: function () {
+                // Set up an event listener before each file is sent
+                this.on("sending", function (file, xhr, formData) {
+                    // Get the latest value of isFromVault and update the headers
+                    const isFromVault = $('#isFromVaultInput').val();
+                    xhr.setRequestHeader('isFromVault', isFromVault);
+                    var isFromVaultInput = document.getElementById("isFromVaultInput");
+
+                    if (isFromVaultInput !== null) {
+                        isFromVaultInput.value = 0;
+                    } else {
+                        console.warn("Element with id 'isFromVaultInput' not found.");
+                    }
+                });
                 // FileUpload.attachaments
-                FileUpload.attachaments.map((element)=>{
-                    var mockFile = { name: element.attachmentID, upload:{attachmentID:element.attachmentID} , type:element.type, thumbnail: element.thumbnail};
+                FileUpload.attachaments.map((element) => {
+                    var mockFile = { name: element.attachmentID, upload: { attachmentID: element.attachmentID }, type: element.type, thumbnail: element.thumbnail };
                     this.emit("addedfile", mockFile);
                     this.emit("thumbnail", mockFile, element.thumbnail);
                     this.emit("complete", mockFile);
                     FileUpload.updatePreviewElement(mockFile, false, element);
                 });
                 var _this = this;
-                $(".draft-clear-button").on("click", function() {
+                $(".draft-clear-button").on("click", function () {
                     _this.removeAllFiles(true);
                 });
             }
@@ -71,54 +84,54 @@ var FileUpload = {
         });
 
         FileUpload.myDropzone.on("success", (file, response) => {
-            if(response.success){
+            if (response.success) {
                 file.upload.attachmentID = response.attachmentID;
-                FileUpload.attachaments.push({attachmentID: response.attachmentID, path: response.path, type:response.type, thumbnail:response.thumbnail});
+                FileUpload.attachaments.push({ attachmentID: response.attachmentID, path: response.path, type: response.type, thumbnail: response.thumbnail });
                 // If received file is a converted video
                 switch (file.type) {
-                case 'video/mp4':
-                case 'video/avi':
-                case 'video/quicktime':
-                case 'video/x-m4v':
-                case 'video/mpeg':
-                case 'video/wmw':
-                case 'video/x-matroska':
-                case 'video/x-ms-asf':
-                case 'video/x-ms-wmv':
-                case 'video/x-ms-wmx':
-                case 'video/x-ms-wvx':
-                case 'video':
-                    FileUpload.updatePreviewElement(file, false,response);
-                    break;
+                    case 'video/mp4':
+                    case 'video/avi':
+                    case 'video/quicktime':
+                    case 'video/x-m4v':
+                    case 'video/mpeg':
+                    case 'video/wmw':
+                    case 'video/x-matroska':
+                    case 'video/x-ms-asf':
+                    case 'video/x-ms-wmv':
+                    case 'video/x-ms-wmx':
+                    case 'video/x-ms-wvx':
+                    case 'video':
+                        FileUpload.updatePreviewElement(file, false, response);
+                        break;
                 }
             }
             FileUpload.isLoading = false;
         });
 
-        FileUpload.myDropzone.on("removedfile", function(file) {
-            FileUpload.attachaments = FileUpload.attachaments.filter((attachment)=>{
-                if(attachment.attachmentID !== file.upload.attachmentID){
+        FileUpload.myDropzone.on("removedfile", function (file) {
+            FileUpload.attachaments = FileUpload.attachaments.filter((attachment) => {
+                if (attachment.attachmentID !== file.upload.attachmentID) {
                     return attachment;
                 }
-                else{
+                else {
                     FileUpload.removeAttachment(attachment);
                 }
             });
         });
 
         FileUpload.myDropzone.on("error", (file, errorMessage) => {
-            if(typeof errorMessage.errors !== 'undefined'){
+            if (typeof errorMessage.errors !== 'undefined') {
                 // launchToast('danger',trans('Error'),errorMessage.errors.file)
-                $.each(errorMessage.errors,function (field,error) {
-                    launchToast('danger',trans('Error'),error);
+                $.each(errorMessage.errors, function (field, error) {
+                    launchToast('danger', trans('Error'), error);
                 });
             }
-            else{
-                if(typeof errorMessage.message !== 'undefined'){
-                    launchToast('danger',trans('Error'),errorMessage.message);
+            else {
+                if (typeof errorMessage.message !== 'undefined') {
+                    launchToast('danger', trans('Error'), errorMessage.message);
                 }
-                else{
-                    launchToast('danger',trans('Error'),errorMessage);
+                else {
+                    launchToast('danger', trans('Error'), errorMessage);
                 }
             }
             FileUpload.myDropzone.removeFile(file);
@@ -132,62 +145,62 @@ var FileUpload = {
      * @param localFile
      * @param attachment
      */
-    updatePreviewElement:function (file,localFile, attachment = false) {
+    updatePreviewElement: function (file, localFile, attachment = false) {
         let filePreview = $(file.previewElement);
         filePreview.find('.dz-image').remove();
         switch (file.type) {
-        case 'video/mp4':
-        case 'video/avi':
-        case 'video/quicktime':
-        case 'video/x-m4v':
-        case 'video/mpeg':
-        case 'video/wmw':
-        case 'video/x-matroska':
-        case 'video/x-ms-asf':
-        case 'video/x-ms-wmv':
-        case 'video/x-ms-wmx':
-        case 'video/x-ms-wvx':
-        case 'video':
-            filePreview.find('.video-preview-item').remove();
-            filePreview.prepend(videoPreview());
-            var videoPreviewEl = filePreview.find('video').get(0);
-            if(localFile){
-                FileUpload.setMediaSourceForPreviewByElementAndFile(videoPreviewEl, file);
-            }
-            else{
-                FileUpload.setPreviewSource(videoPreviewEl, file, attachment);
-            }
-            break;
-        case 'audio/mpeg':
-        case 'audio/ogg':
-        case 'audio':
-            filePreview.prepend(audioPreview());
-            filePreview.addClass("w-100");
-            filePreview.find('audio').addClass("w-100");
-            filePreview.find(".audio-preview-item").addClass("w-100");
-            var audioPreviewEl = filePreview.find('audio').get(0);
-            filePreview.addClass("w-100");
-            if(localFile){
-                FileUpload.setMediaSourceForPreviewByElementAndFile(audioPreviewEl, file);
-            }
-            else{
-                FileUpload.setPreviewSource(audioPreviewEl, file, attachment);
-            }
-            break;
-        case 'application/vnd.ms-excel':
-        case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
-            filePreview.prepend(excelPreview());
-            break;
-        case 'application/pdf':
-            filePreview.prepend(pdfPreview());
-            break;
-        default:
-            filePreview.prepend(imagePreview());
-            if(!localFile){
-                let previewElement = filePreview.find('img').get(0);
-                FileUpload.setPreviewSource(previewElement, file, attachment);
-            }
-            break;
+            case 'video/mp4':
+            case 'video/avi':
+            case 'video/quicktime':
+            case 'video/x-m4v':
+            case 'video/mpeg':
+            case 'video/wmw':
+            case 'video/x-matroska':
+            case 'video/x-ms-asf':
+            case 'video/x-ms-wmv':
+            case 'video/x-ms-wmx':
+            case 'video/x-ms-wvx':
+            case 'video':
+                filePreview.find('.video-preview-item').remove();
+                filePreview.prepend(videoPreview());
+                var videoPreviewEl = filePreview.find('video').get(0);
+                if (localFile) {
+                    FileUpload.setMediaSourceForPreviewByElementAndFile(videoPreviewEl, file);
+                }
+                else {
+                    FileUpload.setPreviewSource(videoPreviewEl, file, attachment);
+                }
+                break;
+            case 'audio/mpeg':
+            case 'audio/ogg':
+            case 'audio':
+                filePreview.prepend(audioPreview());
+                filePreview.addClass("w-100");
+                filePreview.find('audio').addClass("w-100");
+                filePreview.find(".audio-preview-item").addClass("w-100");
+                var audioPreviewEl = filePreview.find('audio').get(0);
+                filePreview.addClass("w-100");
+                if (localFile) {
+                    FileUpload.setMediaSourceForPreviewByElementAndFile(audioPreviewEl, file);
+                }
+                else {
+                    FileUpload.setPreviewSource(audioPreviewEl, file, attachment);
+                }
+                break;
+            case 'application/vnd.ms-excel':
+            case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+                filePreview.prepend(excelPreview());
+                break;
+            case 'application/pdf':
+                filePreview.prepend(pdfPreview());
+                break;
+            default:
+                filePreview.prepend(imagePreview());
+                if (!localFile) {
+                    let previewElement = filePreview.find('img').get(0);
+                    FileUpload.setPreviewSource(previewElement, file, attachment);
+                }
+                break;
         }
     },
 
@@ -198,17 +211,17 @@ var FileUpload = {
      * @returns {boolean}
      */
     setMediaSourceForPreviewByElementAndFile: function (element, file) {
-        if(typeof element === 'undefined'){ return false;}
+        if (typeof element === 'undefined') { return false; }
         if (element.canPlayType(file.type).length && element.canPlayType(file.type) !== "no") {
             const fileURL = window.URL.createObjectURL(file);
             $(element).on('loadeddata', function () {
                 window.URL.revokeObjectURL(fileURL);
             });
             $(element).attr('src', fileURL);
-            $(element).attr('type',file.type);
+            $(element).attr('type', file.type);
         }
-        else{
-            $(element).attr('src', app.baseUrl+'/img/video-loading-spinner.mp4');
+        else {
+            $(element).attr('src', app.baseUrl + '/img/video-loading-spinner.mp4');
             $(element).attr('loop', true);
         }
     },
@@ -233,12 +246,12 @@ var FileUpload = {
             data: {
                 'attachmentId': attachmentID,
             },
-            url: app.baseUrl+'/attachment/remove',
+            url: app.baseUrl + '/attachment/remove',
             success: function () {
-                launchToast('success',trans('Success'), trans('Attachment removed.'));
+                launchToast('success', trans('Success'), trans('Attachment removed.'));
             },
             error: function () {
-                launchToast('danger',trans('Error'), trans('Failed to remove the attachment.'));
+                launchToast('danger', trans('Error'), trans('Failed to remove the attachment.'));
             }
         });
     },

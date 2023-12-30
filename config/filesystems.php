@@ -48,6 +48,11 @@ return [
             'root' => storage_path('app'),
         ],
 
+        'snapshots' => [
+            'driver' => 'local',
+            'root' => database_path('snapshots'),
+        ],
+
         'tmp' => [
             'driver' => 'local',
             'root'   => storage_path('app').'/tmp',

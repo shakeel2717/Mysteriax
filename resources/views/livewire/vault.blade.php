@@ -22,10 +22,10 @@
                     </div>
                 @endif
                 <div class="form-group">
-                    <label for="attachments">Upload Media</label>
-                    <input wire:model="attachments" type="file" class="form-control-file" multiple>
+                    <label for="attachment">Upload Media</label>
+                    <input wire:model="attachment" type="file" class="form-control-file">
                 </div>
-                @if ($attachments)
+                @if ($attachment)
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary btn-sm">Upload Media</button>
                         <div class="spinner-border" wire:loading></div>
@@ -72,7 +72,7 @@
                                     <div class="card-body p-0">
                                         <div class="image-container">
                                             @if ($file->type == 'image')
-                                                <img src="{{ asset('storage/' . $file->image) }}"
+                                                <img src="{{ Storage::url($file->image) }}"
                                                     class="fixed-image img-thumbnail {{ in_array($file->id, $selectedImages) ? 'border border-primary bg-primary' : '' }}"
                                                     wire:click="toggleSelection({{ $file->id }})">
                                                 @if (in_array($file->id, $selectedImages))
@@ -96,12 +96,11 @@
                                                     <div class="modal-content">
                                                         <div class="modal-body p-0">
                                                             @if ($file->type == 'image')
-                                                                <img src="{{ asset('storage/' . $file->image) }}"
+                                                                <img src="{{ Storage::url($file->image) }}"
                                                                     class="img-fluid">
                                                             @else
                                                                 <video width="100%" height="240" controls>
-                                                                    <source
-                                                                        src="{{ asset('storage/' . $file->image) }}"
+                                                                    <source src="{{ Storage::url($file->image) }}"
                                                                         type="video/mp4">
                                                                     Your browser does not support the video tag.
                                                                 </video>
@@ -132,13 +131,13 @@
                     <hr>
 
                     <div class="row">
-                        @foreach ($files->where('type','video') as $file)
+                        @foreach ($files->where('type', 'video') as $file)
                             <div class="col-md-3 mb-3">
                                 <div class="card border-0 text-center">
                                     <div class="card-body p-0">
                                         <div class="image-container">
                                             @if ($file->type == 'image')
-                                                <img src="{{ asset('storage/' . $file->image) }}"
+                                                <img src="{{ Storage::url( $file->image) }}"
                                                     class="fixed-image img-thumbnail {{ in_array($file->id, $selectedImages) ? 'border border-primary bg-primary' : '' }}"
                                                     wire:click="toggleSelection({{ $file->id }})">
                                                 @if (in_array($file->id, $selectedImages))
@@ -153,21 +152,21 @@
                                             @endif
                                             <button class="btn btn-primary btn-sm shadow" style="margin-top: -100px;"
                                                 data-toggle="modal"
-                                                data-target="#exampleModal{{ $file->id }}">View</button>
+                                                data-target="#exampleVideoModal{{ $file->id }}">View</button>
                                             {{-- Bootstrap Model --}}
-                                            <div class="modal fade" id="exampleModal{{ $file->id }}" tabindex="-1"
-                                                aria-labelledby="exampleModal{{ $file->id }}Label"
+                                            <div class="modal fade" id="exampleVideoModal{{ $file->id }}"
+                                                tabindex="-1" aria-labelledby="exampleVideoModal{{ $file->id }}Label"
                                                 aria-hidden="true">
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-body p-0">
                                                             @if ($file->type == 'image')
-                                                                <img src="{{ asset('storage/' . $file->image) }}"
+                                                                <img src="{{ Storage::url( $file->image) }}"
                                                                     class="img-fluid">
                                                             @else
                                                                 <video width="100%" height="240" controls>
                                                                     <source
-                                                                        src="{{ asset('storage/' . $file->image) }}"
+                                                                        src="{{ Storage::url( $file->image) }}"
                                                                         type="video/mp4">
                                                                     Your browser does not support the video tag.
                                                                 </video>
@@ -198,13 +197,13 @@
                     <hr>
 
                     <div class="row">
-                        @foreach ($files->where('type','image') as $file)
+                        @foreach ($files->where('type', 'image') as $file)
                             <div class="col-md-3 mb-3">
                                 <div class="card border-0 text-center">
                                     <div class="card-body p-0">
                                         <div class="image-container">
                                             @if ($file->type == 'image')
-                                                <img src="{{ asset('storage/' . $file->image) }}"
+                                                <img src="{{ Storage::url( $file->image) }}"
                                                     class="fixed-image img-thumbnail {{ in_array($file->id, $selectedImages) ? 'border border-primary bg-primary' : '' }}"
                                                     wire:click="toggleSelection({{ $file->id }})">
                                                 @if (in_array($file->id, $selectedImages))
@@ -219,21 +218,21 @@
                                             @endif
                                             <button class="btn btn-primary btn-sm shadow" style="margin-top: -100px;"
                                                 data-toggle="modal"
-                                                data-target="#exampleModal{{ $file->id }}">View</button>
+                                                data-target="#exampleImageModal{{ $file->id }}">View</button>
                                             {{-- Bootstrap Model --}}
-                                            <div class="modal fade" id="exampleModal{{ $file->id }}" tabindex="-1"
-                                                aria-labelledby="exampleModal{{ $file->id }}Label"
+                                            <div class="modal fade" id="exampleImageModal{{ $file->id }}"
+                                                tabindex="-1" aria-labelledby="exampleImageModal{{ $file->id }}Label"
                                                 aria-hidden="true">
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-body p-0">
                                                             @if ($file->type == 'image')
-                                                                <img src="{{ asset('storage/' . $file->image) }}"
+                                                                <img src="{{ Storage::url($file->image) }}"
                                                                     class="img-fluid">
                                                             @else
                                                                 <video width="100%" height="240" controls>
                                                                     <source
-                                                                        src="{{ asset('storage/' . $file->image) }}"
+                                                                        src="{{ Storage::url($file->image) }}"
                                                                         type="video/mp4">
                                                                     Your browser does not support the video tag.
                                                                 </video>

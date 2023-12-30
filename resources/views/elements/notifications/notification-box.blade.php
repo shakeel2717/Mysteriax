@@ -56,6 +56,10 @@
                             {{ $notification->fromUser->name }} {{ __(' subscribed to your profile') }}
                         @break
 
+                        @case(\App\Model\Notification::NEW_FOLLOWER)
+                            {{ $notification->fromUser->name }} {{ __(' start following you') }}
+                        @break
+
                         @case(\App\Model\Notification::WITHDRAWAL_ACTION)
                             {{ __('Withdrawal processed', [
                                 'currencySymbol' => \App\Providers\SettingsServiceProvider::getWebsiteCurrencySymbol(),
@@ -85,5 +89,13 @@
                 </div>
             </div>
         </div>
+        <a href="{{ route('my.messenger.show',['user' => $notification->fromUser->id]) }}"
+            class="h-pill-primary nav-link mr-2 d-flex justify-content-between">
+            <div class="d-flex justify-content-center align-items-center">
+                <div class="icon-wrapper d-flex justify-content-center align-items-center position-relative">
+                    @include('elements.icon', ['icon' => 'chatbubble-outline', 'variant' => 'large'])
+                </div>
+            </div>
+        </a>
     </div>
 </div>

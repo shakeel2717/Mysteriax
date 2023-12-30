@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Model\Country;
+use App\Model\UserList;
+use App\Model\UserListMember;
 use App\Providers\GenericHelperServiceProvider;
 use App\Providers\ListsHelperServiceProvider;
 use App\Providers\PostsHelperServiceProvider;
@@ -28,7 +30,7 @@ class ProfileController extends Controller
     {
         $username = $request->route('username');
         $this->user = PostsHelperServiceProvider::getUserByUsername($username);
-        if (! $this->user) {
+        if (!$this->user) {
             abort(404);
         }
     }
@@ -51,12 +53,12 @@ class ProfileController extends Controller
         // General access rules
         $this->setAccessRules();
         if (!$this->user->public_profile && !Auth::check()) {
-            abort(403,__('Profile access is denied.'));
+            abort(403, __('Profile access is denied.'));
         }
 
         // Geoblocking rule
-        if($this->isGeoLocationBlocked()){
-            abort(403,__('Profile access is denied.'));
+        if ($this->isGeoLocationBlocked()) {
+            abort(403, __('Profile access is denied.'));
         }
 
         $data['showLoginDialog'] = false;
@@ -85,17 +87,17 @@ class ProfileController extends Controller
             }
         }
 
-        $data = array_merge($data,[
+        $data = array_merge($data, [
             'user' => $this->user,
             'hasSub' => $this->hasSub,
             'posts' => $posts,
             'activeFilter' => $postsFilter,
             'filterTypeCounts' => PostsHelperServiceProvider::getUserMediaTypesCount($this->user->id),
-            'offer'=> $offer,
-            'viewerHasChatAccess'=> $this->viewerHasChatAccess,
+            'offer' => $offer,
+            'viewerHasChatAccess' => $this->viewerHasChatAccess,
         ]);
 
-        if($postsFilter == 'streams'){
+        if ($postsFilter == 'streams') {
             $streams = StreamsServiceProvider::getPublicStreams(['userId' => $this->user->id, 'status' => 'all']);
             $data['streams'] = $streams;
         }
@@ -107,7 +109,7 @@ class ProfileController extends Controller
         }
 
         $additionalAssets = [];
-        if(getSetting('profiles.allow_profile_qr_code')){
+        if (getSetting('profiles.allow_profile_qr_code')) {
             $additionalAssets[] = '/libs/easyqrcodejs/dist/easy.qrcode.min.js';
         }
         $data['additionalAssets'] = $additionalAssets;
@@ -121,7 +123,7 @@ class ProfileController extends Controller
             'hasMore' => $posts->hasMorePages(),
         ];
 
-        if($postsFilter == 'streams') {
+        if ($postsFilter == 'streams') {
             $paginatorConfig = [
                 'next_page_url' => str_replace(['?page=', '?filter='], ['/streams?page=', '/streams?filter='], $streams->nextPageUrl()),
                 'prev_page_url' => str_replace(['?page=', '?filter='], ['/streams?page=', '/streams?filter='], $streams->previousPageUrl()),
@@ -134,9 +136,9 @@ class ProfileController extends Controller
 
         // Seo description for share urls
         $rawDescription = getSetting('profiles.allow_profile_bio_markdown') && $this->user->bio ? strip_tags(GenericHelperServiceProvider::parseProfileMarkdownBio($this->user->bio)) : $this->user->bio;
-        $data['seo_description'] = $rawDescription ? str_replace(array("\n", "\r"), ' ', substr($rawDescription,0, 90)) . (strlen($rawDescription) > 90 ? '...' : '') : null;
+        $data['seo_description'] = $rawDescription ? str_replace(array("\n", "\r"), ' ', substr($rawDescription, 0, 90)) . (strlen($rawDescription) > 90 ? '...' : '') : null;
 
-        Session::put('lastProfileUrl', route('profile',['username'=> $this->user->username]));
+        Session::put('lastProfileUrl', route('profile', ['username' => $this->user->username]));
 
         JavaScript::put([
             'paginatorConfig' => $paginatorConfig,
@@ -166,8 +168,8 @@ class ProfileController extends Controller
         $postsFilter = $request->get('filter') ? $request->get('filter') : false;
 
         return response()->json([
-            'success'=>true,
-            'data'=>PostsHelperServiceProvider::getUserPosts($this->user->id, true, false, $postsFilter, $this->hasSub),
+            'success' => true,
+            'data' => PostsHelperServiceProvider::getUserPosts($this->user->id, true, false, $postsFilter, $this->hasSub),
         ]);
     }
 
@@ -177,11 +179,12 @@ class ProfileController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getUserStreams(Request $request){
+    public function getUserStreams(Request $request)
+    {
         $this->setAccessRules();
         return response()->json([
-            'success'=>true,
-            'data'=>StreamsServiceProvider::getPublicStreams(['encodePostsToHtml'=>true, 'status' => 'all','showUsername'=>false]),
+            'success' => true,
+            'data' => StreamsServiceProvider::getPublicStreams(['encodePostsToHtml' => true, 'status' => 'all', 'showUsername' => false]),
         ]);
     }
 
@@ -200,39 +203,42 @@ class ProfileController extends Controller
                 $this->hasSub = true;
                 $this->isOwner = true;
             }
-            if(!$this->user->paid_profile && ListsHelperServiceProvider::loggedUserIsFollowingUser($this->user->id)){
+            if (!$this->user->paid_profile && ListsHelperServiceProvider::loggedUserIsFollowingUser($this->user->id)) {
                 $this->hasSub = true;
             }
-            if($viewerUser->role_id === 1){
+            if ($viewerUser->role_id === 1) {
                 $this->hasSub = true;
                 $this->isOwner = true;
             }
             // handles chat access for creators so they can message their subscribers without subscribing back
             $this->viewerHasChatAccess = PostsHelperServiceProvider::hasActiveSub($this->user->id, $viewerUser->id);
+
+            if (ListsHelperServiceProvider::isUserFollowing($this->user->id, $viewerUser->id) || ListsHelperServiceProvider::isUserFollowing($viewerUser->id, $this->user->id)) {
+                $this->viewerHasChatAccess = true;
+            }
         }
     }
 
-    protected function isGeoLocationBlocked(){
-        if(getSetting('security.allow_geo_blocking')){
-            if($this->user->enable_geoblocking){
-                if(isset($this->user->settings['geoblocked_countries'])){
+    protected function isGeoLocationBlocked()
+    {
+        if (getSetting('security.allow_geo_blocking')) {
+            if ($this->user->enable_geoblocking) {
+                if (isset($this->user->settings['geoblocked_countries'])) {
                     $countries = json_decode($this->user->settings['geoblocked_countries']);
-                    $blockedCountries = Country::whereIn('name',$countries)->get();
+                    $blockedCountries = Country::whereIn('name', $countries)->get();
                     $client = new \GuzzleHttp\Client();
-                    $apiRequest = $client->get('https://ipgeolocation.abstractapi.com/v1/?api_key='.getSetting('security.abstract_api_key').'&ip_address=' . $_SERVER['REMOTE_ADDR']);
+                    $apiRequest = $client->get('https://ipgeolocation.abstractapi.com/v1/?api_key=' . getSetting('security.abstract_api_key') . '&ip_address=' . $_SERVER['REMOTE_ADDR']);
                     $apiData = json_decode($apiRequest->getBody()->getContents());
-                    foreach($blockedCountries as $country){
-                        if($country->country_code == $apiData->country_code){
-                            if(!(Auth::check() && Auth::user()->id === $this->user->id)){
+                    foreach ($blockedCountries as $country) {
+                        if ($country->country_code == $apiData->country_code) {
+                            if (!(Auth::check() && Auth::user()->id === $this->user->id)) {
                                 return true;
                             }
                         }
                     }
-
                 }
             }
         }
         return false;
     }
-
 }

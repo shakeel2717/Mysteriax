@@ -30,6 +30,7 @@
         "pusher/pusher-php-server": "^4.1",
         "ramsey/uuid": "^4.2.2",
         "silviolleite/laravelpwa": "^2.0",
+        "spatie/laravel-db-snapshots": "^1.7",
         "spatie/schema-org": "^2.8",
         "stripe/stripe-php": "^7.77",
         "tcg/voyager": "^1.5",

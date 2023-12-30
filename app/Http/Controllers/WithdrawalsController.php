@@ -8,6 +8,7 @@ use App\Providers\EmailsServiceProvider;
 use App\Providers\GenericHelperServiceProvider;
 use App\Providers\PaymentsServiceProvider;
 use App\Providers\SettingsServiceProvider;
+use Illuminate\Support\Facades\App;
 use App\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -33,7 +34,7 @@ class WithdrawalsController extends Controller
                     $user->wallet = GenericHelperServiceProvider::createUserWallet($user);
                 }
 
-                if(floatval($amount) === floatval(PaymentsServiceProvider::getWithdrawalMinimumAmount()) && floatval($amount) > $user->wallet->total){
+                if (floatval($amount) === floatval(PaymentsServiceProvider::getWithdrawalMinimumAmount()) && floatval($amount) > $user->wallet->total) {
                     return response()->json(
                         [
                             'success' => false,
@@ -47,11 +48,11 @@ class WithdrawalsController extends Controller
                 }
 
                 $fee = 0;
-                if(getSetting('payments.withdrawal_allow_fees') && floatval(getSetting('payments.withdrawal_default_fee_percentage')) > 0) {
+                if (getSetting('payments.withdrawal_allow_fees') && floatval(getSetting('payments.withdrawal_default_fee_percentage')) > 0) {
                     $fee = (floatval(getSetting('payments.withdrawal_default_fee_percentage')) / 100) * floatval($amount);
                 }
 
-                Withdrawal::create([
+                $withdrawal = Withdrawal::create([
                     'user_id' => Auth::user()->id,
                     'amount' => floatval($amount),
                     'status' => Withdrawal::REQUESTED_STATUS,
@@ -79,23 +80,66 @@ class WithdrawalsController extends Controller
                             'content' => __('There is a new withdrawal request on :siteName that requires your attention.', ['siteName' => getSetting('site.name')]),
                             'button' => [
                                 'text' => __('Go to admin'),
-                                'url' => route('voyager.dashboard').'/withdrawals',
+                                'url' => route('voyager.dashboard') . '/withdrawals',
                             ],
                         ]
                     );
                 }
 
+                // automatic approving this withdraw
+                info("Auto Update Withdraw Proccess");
+                PaymentsServiceProvider::createTransactionForWithdrawal($withdrawal);
+
+                $emailSubject = __('Your withdrawal request has been approved.');
+                $button = [
+                    'text' => __('My payments'),
+                    'url' => route('my.settings', ['type' => 'payments']),
+                ];
+
+                // Sending out the user notification
+                $user = User::find($withdrawal->user_id);
+                if ($user->stripe_id) {
+                    App::setLocale($user->settings['locale']);
+                    EmailsServiceProvider::sendGenericEmail(
+                        [
+                            'email' => $user->email,
+                            'subject' => $emailSubject,
+                            'title' => __('Hello, :name,', ['name' => $user->name]),
+                            'content' => __('Email withdrawal processed', [
+                                'siteName' => getSetting('site.name'),
+                                'status' => __($withdrawal->status),
+                            ]) . ($withdrawal->status == 'approved' ? ' ' . SettingsServiceProvider::getWebsiteCurrencySymbol() . $withdrawal->amount . (getSetting('payments.withdrawal_allow_fees') ? '(-' . SettingsServiceProvider::getWebsiteCurrencySymbol() . $withdrawal->amount / getSetting('payments.withdrawal_default_fee_percentage') . ' taxes)' : '') . ' ' . __('has been sent to your account.') : ''),
+                            'button' => $button,
+                        ]
+                    );
+
+                    // mark withdrawal as processed
+                    $withdrawal->processed = true;
+
+                    info("Stipe Transfer Start");
+                    \Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+                    $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
+                    $transfer = \Stripe\Transfer::create([
+                        'amount' => ($amount - $fee) * 100,
+                        'currency' => 'usd',
+                        'destination' => $user->stripe_id,
+                    ]);
+                    info("Stipe Transfer End");
+                } else {
+                    info("NO Stripe ID Found");
+                }
+
                 return response()->json([
                     'success' => true,
                     'message' => __('Successfully requested withdrawal'),
-                    'totalAmount' => SettingsServiceProvider::getWebsiteCurrencySymbol().$totalAmount,
-                    'pendingBalance' => SettingsServiceProvider::getWebsiteCurrencySymbol().$pendingBalance,
+                    'totalAmount' => SettingsServiceProvider::getWebsiteCurrencySymbol() . $totalAmount,
+                    'pendingBalance' => SettingsServiceProvider::getWebsiteCurrencySymbol() . $pendingBalance,
                 ]);
             }
         } catch (\Exception $exception) {
             return response()->json(['success' => false, 'message' => $exception->getMessage()]);
         }
 
-        return response()->json(['success' => false, 'message' => __('Something went wrong, please try again')],500);
+        return response()->json(['success' => false, 'message' => __('Something went wrong, please try again')], 500);
     }
 }

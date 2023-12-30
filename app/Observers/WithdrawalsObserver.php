@@ -27,6 +27,7 @@ class WithdrawalsObserver
                 if ($withdrawal->status == 'rejected') {
                     self::handleWithdrawalRejection($withdrawal);
                 } elseif ($withdrawal->status = 'approved') {
+                    info("Withdrawal Observer");
                     PaymentsServiceProvider::createTransactionForWithdrawal($withdrawal);
 
                     $emailSubject = __('Your withdrawal request has been approved.');

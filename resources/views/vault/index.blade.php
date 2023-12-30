@@ -1,6 +1,6 @@
 @extends('layouts.user-no-nav')
 
-@section('page_title', __('Bookmarks'))
+@section('page_title', __('Vault'))
 
 @section('styles')
     <style>
@@ -11,12 +11,7 @@
             cursor: pointer;
         }
     </style>
-    @livewireStyles()
 @stop
-
-@section('scripts')
-    @livewireScripts()
-@endsection
 
 @section('content')
     <div class="row">

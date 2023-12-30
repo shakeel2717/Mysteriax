@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Model\Notification;
+use App\Providers\GenericHelperServiceProvider;
 use App\Providers\NotificationServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,15 +32,15 @@ class NotificationsController extends Controller
 
         $notifications = $this->getUserNotifications($activeType);
         $unreadNotificationIds = [];
-        foreach ($notifications as $notification){
-            if(!$notification->read){
+        foreach ($notifications as $notification) {
+            if (!$notification->read) {
                 $unreadNotificationIds[] = $notification->id;
             }
         }
 
         $notificationsCountOverride = NotificationServiceProvider::getUnreadNotifications();
 
-        if(count($unreadNotificationIds)){
+        if (count($unreadNotificationIds)) {
             Notification::whereIn('id', array_values($unreadNotificationIds))->update(['read' => true]);
         }
 
@@ -77,6 +78,7 @@ class NotificationsController extends Controller
                     break;
                 case Notification::SUBSCRIPTIONS_FILTER:
                     $types[] = Notification::NEW_SUBSCRIPTION;
+                    $types[] = Notification::NEW_FOLLOWER;
                     break;
                 case Notification::TIPS_FILTER:
                     $types[] = Notification::NEW_TIP;
@@ -109,12 +111,22 @@ class NotificationsController extends Controller
                 ->with(['fromUser', 'post'])
                 ->paginate(8);
         } else {
-            $notifications = Notification::query()
-                ->where(['to_user_id' => Auth::id()])
-                ->orderBy('read', 'ASC')
-                ->orderBy('created_at', 'DESC')
-                ->with(['fromUser', 'post'])
-                ->paginate(7);
+            if (GenericHelperServiceProvider::isUserVerified()) {
+                $notifications = Notification::query()
+                    ->where(['to_user_id' => Auth::id()])
+                    ->orderBy('read', 'ASC')
+                    ->whereNotIn('type', ['new-message'])
+                    ->orderBy('created_at', 'DESC')
+                    ->with(['fromUser', 'post'])
+                    ->paginate(7);
+            } else {
+                $notifications = Notification::query()
+                    ->where(['to_user_id' => Auth::id()])
+                    ->orderBy('read', 'ASC')
+                    ->orderBy('created_at', 'DESC')
+                    ->with(['fromUser', 'post'])
+                    ->paginate(7);
+            }
         }
 
         return $notifications;

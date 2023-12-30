@@ -19,7 +19,7 @@ $(function () {
     $('.custom-control').on('change', function () {
         $('.withdrawal-error-message').hide();
     });
-    $('#payment-methods').on('change', function() {
+    $('#payment-methods').on('change', function () {
         Wallet.setPaymentMethodTitle();
     });
 });
@@ -31,12 +31,11 @@ var Wallet = {
      * @returns {boolean}
      */
     initWithdrawal: function () {
-
         let submitButton = $('.withdrawal-continue-btn');
-        updateButtonState('loading',submitButton, trans('Request withdrawal'),'white');
+        updateButtonState('loading', submitButton, trans('Request withdrawal'), 'white');
 
-        if(!Wallet.withdrawalAmountValidation()){
-            updateButtonState('loaded',submitButton, trans('Request withdrawal'));
+        if (!Wallet.withdrawalAmountValidation()) {
+            updateButtonState('loaded', submitButton, trans('Request withdrawal'));
             return false;
         }
 
@@ -47,7 +46,7 @@ var Wallet = {
                 amount: $('#withdrawal-amount').val(),
                 message: $('#withdrawal-message').val(),
                 identifier: $('#withdrawal-payment-identifier').val(),
-                method: $('#payment-methods').find(":selected").text(),
+                method: $('#payment-methods').val(),
             },
             url: app.baseUrl + '/withdrawals/request',
             success: function (result) {
@@ -69,21 +68,21 @@ var Wallet = {
                 $('#withdrawal-amount').removeClass('is-invalid');
                 $('#withdrawal-message').removeClass('is-invalid');
 
-                updateButtonState('loaded',submitButton, trans('Request withdrawal'));
+                updateButtonState('loaded', submitButton, trans('Request withdrawal'));
 
             },
             error: function (result) {
-                if(result.status === 422 || result.status === 500) {
+                if (result.status === 422 || result.status === 500) {
                     $.each(result.responseJSON.errors, function (field) {
                         if (field === 'amount') {
                             $('#withdrawal-amount').addClass('is-invalid');
                         }
-                        if(field === 'message'){
+                        if (field === 'message') {
                             $('#withdrawal-message').addClass('is-invalid');
                         }
                     });
                 }
-                updateButtonState('loaded',submitButton, trans('Request withdrawal'));
+                updateButtonState('loaded', submitButton, trans('Request withdrawal'));
             }
         });
     },
@@ -94,12 +93,18 @@ var Wallet = {
      */
     withdrawalAmountValidation: function () {
         let withdrawalAmount = $('#withdrawal-amount').val();
-        if (withdrawalAmount.length === 0
-            || (withdrawalAmount.length > 0 && (parseFloat(withdrawalAmount) < parseFloat(app.withdrawalsMinAmount)
-                || parseFloat(withdrawalAmount) > parseFloat(app.withdrawalsMaxAmount)))) {
+        if (withdrawalAmount.length === 0) {
             $('#withdrawal-amount').addClass('is-invalid');
+            alert("Invalid Amount");
             return false;
-        } else {
+        } else if (parseFloat(withdrawalAmount) < parseFloat(app.withdrawalsMinAmount)) {
+            alert("Min Withdrawal Limit is: " + app.withdrawalsMinAmount);
+            return false;
+        } else if (parseFloat(withdrawalAmount) > parseFloat(app.withdrawalsMaxAmount)) {
+            alert("Max Withdrawal Limit is: " + app.withdrawalsMaxAmount);
+            return false;
+        }
+        else {
             $('#withdrawal-amount').removeClass('is-invalid');
             return true;
         }
@@ -109,7 +114,7 @@ var Wallet = {
      * Get withdrawal payment identifier based on payment method from dropdown
      * @returns {string}
      */
-    getPaymentIdentifierTitle: function() {
+    getPaymentIdentifierTitle: function () {
         let title;
         switch ($('#payment-methods').find(":selected").text()) {
             case 'Bank transfer':

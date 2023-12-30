@@ -13,9 +13,9 @@
         </div>
     @endif
     <div class="form-group ">
-        <label for="email" class="col-form-label">{{ __('E-Mail Address') }}</label>
+        {{-- <label for="email" class="col-form-label">{{ __('E-Mail Address') }}</label> --}}
         <div class="">
-            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror"  name="email" value="{{ old('email') }}" autocomplete="email" autofocus>
+            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror"  name="email" value="{{ old('email') }}" autocomplete="email" autofocus placeholder="{{ __('E-Mail Address') }}">
             @error('email')
             <span class="invalid-feedback" role="alert">
                 <strong>{{ $message }}</strong>
@@ -25,9 +25,9 @@
     </div>
 
     <div class="form-group">
-        <label for="password" class="col-form-label">{{ __('Password') }}</label>
+        {{-- <label for="password" class="col-form-label">{{ __('Password') }}</label> --}}
         <div class="">
-            <input id="password" type="password" class="form-control @error('password') is-invalid @enderror"  name="password" autocomplete="current-password">
+            <input id="password" type="password" class="form-control @error('password') is-invalid @enderror"  name="password" autocomplete="current-password" placeholder="{{ __('Password') }}">
             @error('password')
             <span class="invalid-feedback" role="alert">
                 <strong>{{ $message }}</strong>
@@ -51,7 +51,7 @@
     <div class="clearfix"></div>
     <div class="form-group row mb-0 mt-4">
         <div class="col">
-            <button type="submit" class="btn btn-grow btn-lg btn-primary bg-gradient-primary btn-block">
+            <button type="submit" class="btn btn-grow rounded-pill btn-lg btn-primary bg-gradient-primary btn-block">
                 {{__('Login')}}
             </button>
         </div>

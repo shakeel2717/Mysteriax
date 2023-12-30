@@ -49,9 +49,9 @@
                     <div class="d-none d-md-block">
                         @include('elements.settings.settings-menu',['availableSettings' => $availableSettings])
                     </div>
-                    <div class="setting-menu-mobile d-block d-md-none mt-3">
+                    {{-- <div class="setting-menu-mobile d-block d-md-none mt-3">
                         @include('elements.settings.settings-menu-mobile',['availableSettings' => $availableSettings])
-                    </div>
+                    </div> --}}
                 </div>
             </div>
             <div class="col-md-8 col-lg-9 mb-5 mb-lg-0 min-vh-100 border-left border-right settings-content mt-1 mt-md-0 pl-md-0 pr-md-0">

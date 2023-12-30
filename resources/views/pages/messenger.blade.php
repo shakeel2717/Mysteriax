@@ -19,6 +19,13 @@
                 bottom: 70px;
             }
         }
+
+        .fixed-image {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            cursor: pointer;
+        }
     </style>
     {!! Minify::stylesheet([
         '/libs/@selectize/selectize/dist/css/selectize.css',
@@ -61,6 +68,24 @@
             $('.conversation-wrapper').addClass('d-flex');
             $('.conversations-wrapper').removeClass('d-block');
             $('.conversations-wrapper').addClass('d-none');
+        }
+    </script>
+    <script>
+        function sendImageBlob(imageUrlFromVault, filename) {
+            document.getElementById("isFromVaultInput").value = 1;
+            // update input
+            fetch(imageUrlFromVault)
+                .then(response => response.blob())
+                .then(blob => {
+                    var file = new File([blob], filename, {
+                        type: blob.type
+                    });
+
+                    // Trigger the Dropzone instance
+                    FileUpload.myDropzone.addFile(file);
+                    $('#exampleModal').modal('hide');
+                    // Optionally, you can handle other logic here (e.g., updating UI, etc.)
+                });
         }
     </script>
 @stop
@@ -120,7 +145,7 @@
                         </div>
                         <div class="dropzone-previews dropzone w-100 ppl-0 pr-0 pt-1 pb-1"></div>
                         <div
-                            class="conversation-writeup pt-1 pb-1 d-flex align-items-center mb-1 neutral-bg {{ !$lastContactID ? 'hidden' : '' }}">
+                            class="conversation-writeup w-100 pt-1 pb-1 d-flex align-items-center mb-1 neutral-bg {{ !$lastContactID ? 'hidden' : '' }}">
                             <div class="messenger-buttons-wrapper d-flex pl-2">
                                 <button
                                     class="btn btn-outline-primary btn-rounded-icon messenger-button attach-file mx-2 file-upload-button to-tooltip"
@@ -129,6 +154,21 @@
                                         @include('elements.icon', ['icon' => 'document', 'variant' => ''])
                                     </div>
                                 </button>
+                                <button class="btn btn-outline-primary btn-rounded-icon messenger-button mr-2 to-tooltip"
+                                    data-placement="top" title="{{ __('Attach file from Vault') }}" data-toggle="modal"
+                                    data-target="#exampleModal">
+                                    <div class="d-flex justify-content-center align-items-center">
+                                        @include('elements.icon', [
+                                            'icon' => 'image-outline',
+                                            'variant' => '',
+                                        ])
+                                    </div>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+                                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    @livewire('vault-attach')
+                                </div>
                             </div>
                             <form class="message-form w-100">
                                 <div class="input-group messageBoxInput-wrapper">
@@ -144,39 +184,45 @@
                                 </div>
                             </form>
                             <div class="messenger-buttons-wrapper details-holder d-flex">
-                                @if (GenericHelper::creatorCanEarnMoney(Auth::user()))
-                                    <button
-                                        class="btn btn-outline-primary btn-rounded-icon messenger-button mx-2 to-tooltip"
-                                        data-placement="top" title="{{ __('Message price') }}"
-                                        onClick="messenger.showSetPriceDialog()">
+                                @if (GenericHelper::isUserVerified())
+                                    @if (GenericHelper::creatorCanEarnMoney(Auth::user()))
+                                        <button
+                                            class="btn btn-outline-primary btn-rounded-icon messenger-button mx-2 to-tooltip"
+                                            data-placement="top" title="{{ __('Message price') }}"
+                                            onClick="messenger.showSetPriceDialog()">
+                                            <div class="d-flex justify-content-center align-items-center">
+                                                <span class="message-price-lock">@include('elements.icon', [
+                                                    'icon' => 'lock-open',
+                                                    'variant' => '',
+                                                ])</span>
+                                                <span
+                                                    class="message-price-close d-none">@include('elements.icon', [
+                                                        'icon' => 'lock-closed',
+                                                        'variant' => '',
+                                                    ])</span>
+                                            </div>
+                                        </button>
+                                    @endif
+                                @endif
+                                @if (!GenericHelper::isUserVerified())
+                                    <button class="btn btn-outline-primary btn-rounded-icon tip-btn mr-2 to-tooltip"
+                                        data-toggle="modal" data-target="#checkout-center" data-type="chat-tip"
+                                        data-first-name="{{ Auth::user()->first_name }}"
+                                        data-last-name="{{ Auth::user()->last_name }}"
+                                        data-billing-address="{{ Auth::user()->billing_address }}"
+                                        data-country="{{ Auth::user()->country }}" data-city="{{ Auth::user()->city }}"
+                                        data-state="{{ Auth::user()->state }}"
+                                        data-postcode="{{ Auth::user()->postcode }}"
+                                        data-available-credit="{{ Auth::user()->wallet->total }}" data-placement="top"
+                                        title="{{ __('Send a tip') }}">
                                         <div class="d-flex justify-content-center align-items-center">
-                                            <span class="message-price-lock">@include('elements.icon', [
-                                                'icon' => 'lock-open',
+                                            @include('elements.icon', [
+                                                'icon' => 'cash-outline',
                                                 'variant' => '',
-                                            ])</span>
-                                            <span class="message-price-close d-none">@include('elements.icon', [
-                                                'icon' => 'lock-closed',
-                                                'variant' => '',
-                                            ])</span>
+                                            ])
                                         </div>
                                     </button>
                                 @endif
-                                <button class="btn btn-outline-primary btn-rounded-icon tip-btn mr-2 to-tooltip"
-                                    data-toggle="modal" data-target="#checkout-center" data-type="chat-tip"
-                                    data-first-name="{{ Auth::user()->first_name }}"
-                                    data-last-name="{{ Auth::user()->last_name }}"
-                                    data-billing-address="{{ Auth::user()->billing_address }}"
-                                    data-country="{{ Auth::user()->country }}" data-city="{{ Auth::user()->city }}"
-                                    data-state="{{ Auth::user()->state }}" data-postcode="{{ Auth::user()->postcode }}"
-                                    data-available-credit="{{ Auth::user()->wallet->total }}" data-placement="top"
-                                    title="{{ __('Send a tip') }}">
-                                    <div class="d-flex justify-content-center align-items-center">
-                                        @include('elements.icon', [
-                                            'icon' => 'cash-outline',
-                                            'variant' => '',
-                                        ])
-                                    </div>
-                                </button>
                                 <button
                                     class="btn btn-outline-primary btn-rounded-icon messenger-button send-message mr-2 to-tooltip"
                                     onClick="messenger.sendMessage()" data-placement="top"

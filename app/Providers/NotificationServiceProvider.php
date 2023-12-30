@@ -95,7 +95,7 @@ class NotificationServiceProvider extends ServiceProvider
                 if ($post != null) {
                     $fromUser = User::query()->where('id', $postComment->user_id)->first();
                     if ($fromUser != null) {
-                        $notificationData['message'] = __(':name added a new comment on your post', ['name'=>$fromUser->name]);
+                        $notificationData['message'] = __(':name added a new comment on your post', ['name' => $fromUser->name]);
                     }
                     $notificationData['post_comment_id'] = $postComment->id;
                     $notificationData['to_user_id'] = $post->user_id;
@@ -107,8 +107,8 @@ class NotificationServiceProvider extends ServiceProvider
                         [
                             'email' => $user->email,
                             'subject' => __('New comment received'),
-                            'title' => __('Hello, :name,', ['name'=>$user->name]),
-                            'content' =>  __("You've received a new comment on one of your posts at :siteName.", ['siteName'=>getSetting('site.name')]),
+                            'title' => __('Hello, :name,', ['name' => $user->name]),
+                            'content' =>  __("You've received a new comment on one of your posts at :siteName.", ['siteName' => getSetting('site.name')]),
                             'button' => [
                                 'text' => __('Your notifications'),
                                 'url' => route('my.notifications'),
@@ -119,8 +119,10 @@ class NotificationServiceProvider extends ServiceProvider
             }
 
             // New subscription
-            if ($subscription != null && isset($subscription->id) && isset($subscription->sender_user_id)
-                && isset($subscription->recipient_user_id)) {
+            if (
+                $subscription != null && isset($subscription->id) && isset($subscription->sender_user_id)
+                && isset($subscription->recipient_user_id)
+            ) {
                 $notificationData['subscription_id'] = $subscription->id;
                 $notificationData['to_user_id'] = $subscription->recipient_user_id;
                 $notificationData['from_user_id'] = $subscription->sender_user_id;
@@ -130,7 +132,7 @@ class NotificationServiceProvider extends ServiceProvider
                 // Building up the notification message to be broadcasted & db saved
                 $subscriber = User::query()->where('id', $subscription->sender_user_id)->first();
                 if ($subscriber != null) {
-                    $notificationData['message'] = __('New subscription from :name', ['name'=>$subscriber->name]);
+                    $notificationData['message'] = __('New subscription from :name', ['name' => $subscriber->name]);
                 } else {
                     $notificationData['message'] = __('A new user subscribed to your profile');
                 }
@@ -141,7 +143,7 @@ class NotificationServiceProvider extends ServiceProvider
                         [
                             'email' => $user->email,
                             'subject' => __('You got a new subscriber!'),
-                            'title' => __('Hello, :name,', ['name'=>$user->name]),
+                            'title' => __('Hello, :name,', ['name' => $user->name]),
                             'content' => __('You got a new subscriber! You can see more details over your subscriptions tab.'),
                             'button' => [
                                 'text' => __('Manage your subs'),
@@ -156,7 +158,7 @@ class NotificationServiceProvider extends ServiceProvider
             if (
                 ($transaction != null && isset($transaction->id) && isset($transaction->sender_user_id)
                     && isset($transaction->amount) && isset($transaction->currency) && isset($transaction->recipient_user_id))
-                && !in_array($type,[Notification::PPV_UNLOCK])
+                && !in_array($type, [Notification::PPV_UNLOCK])
             ) {
                 $notificationData['transaction_id'] = $transaction->id;
                 $notificationData['to_user_id'] = $transaction->recipient_user_id;
@@ -167,7 +169,7 @@ class NotificationServiceProvider extends ServiceProvider
                 $sender = User::query()->where('id', $transaction->sender_user_id)->first();
                 if ($sender != null) {
                     $amount = PaymentsServiceProvider::getTransactionAmountWithTaxesDeducted($transaction);
-                    $notificationData['message'] = $sender->name.' '.__('sent you a tip of').' '.$amount.$transaction->currency.'.';
+                    $notificationData['message'] = $sender->name . ' ' . __('sent you a tip of') . ' ' . $amount . $transaction->currency . '.';
                 }
                 // Sending the user email notification
                 if (isset($user->settings['notification_email_new_tip']) && $user->settings['notification_email_new_tip'] == 'true') {
@@ -175,11 +177,11 @@ class NotificationServiceProvider extends ServiceProvider
                         [
                             'email' => $user->email,
                             'subject' => __('You got a new tip!'),
-                            'title' => __('Hello, :name,', ['name'=>$user->name]),
+                            'title' => __('Hello, :name,', ['name' => $user->name]),
                             'content' => $notificationData['message'],
                             'button' => [
                                 'text' => __('Your notifications'),
-                                'url' => route('my.notifications', ['type'=>'subscriptions']),
+                                'url' => route('my.notifications', ['type' => 'subscriptions']),
                             ],
                         ]
                     );
@@ -187,21 +189,21 @@ class NotificationServiceProvider extends ServiceProvider
             }
 
             // PPV unlock
-            if($type === Notification::PPV_UNLOCK) {
-                if($transaction->post_id){
+            if ($type === Notification::PPV_UNLOCK) {
+                if ($transaction->post_id) {
                     $message = __("post");
                     $notificationData['post_id'] = $transaction->post_id;
                 }
-                if($transaction->stream_id){
+                if ($transaction->stream_id) {
                     $message = __("stream");
                     $notificationData['stream_id'] = $transaction->stream_id;
                 }
-                if($transaction->user_message_id){
+                if ($transaction->user_message_id) {
                     $message = __("message");
                     $notificationData['user_message_id'] = $transaction->user_message_id;
                 }
 
-                $message = __('Someone unlocked your'). ' ' . $message . '.';
+                $message = __('Someone unlocked your') . ' ' . $message . '.';
                 $notificationData['transaction_id'] = $transaction->id;
                 $notificationData['to_user_id'] = $toUser = $transaction->recipient_user_id;
                 $notificationData['from_user_id'] = $transaction->sender_user_id;
@@ -215,16 +217,15 @@ class NotificationServiceProvider extends ServiceProvider
                         [
                             'email' => $user->email,
                             'subject' => __('Your paid content has been unlocked!'),
-                            'title' => __('Hello, :name,', ['name'=>$user->name]),
+                            'title' => __('Hello, :name,', ['name' => $user->name]),
                             'content' => $message,
                             'button' => [
                                 'text' => __('Your notifications'),
-                                'url' => route('my.notifications', ['type'=>'tips']),
+                                'url' => route('my.notifications', ['type' => 'tips']),
                             ],
                         ]
                     );
                 }
-
             }
 
             // New post / comment reaction
@@ -239,7 +240,7 @@ class NotificationServiceProvider extends ServiceProvider
                             $toUser = User::where('id', $post->user_id)->select(['email', 'username', 'name', 'settings'])->first();
                             App::setLocale($user->settings['locale']);
                             // Building up the notification message to be broadcasted & db saved
-                            $notificationData['message'] = __(':name liked your post', ['name'=>$user->name]);
+                            $notificationData['message'] = __(':name liked your post', ['name' => $user->name]);
                             $notificationData['post_id'] = $post->id;
                             $notificationData['to_user_id'] = $post->user_id;
                         }
@@ -252,7 +253,7 @@ class NotificationServiceProvider extends ServiceProvider
                             $toUser = User::where('id', $postComment->user_id)->select(['email', 'username', 'name', 'settings'])->first();
                             App::setLocale($user->settings['locale']);
                             // Building up the notification message to be broadcasted & db saved
-                            $notificationData['message'] = __(':name liked your comment', ['name'=>$user->name]);
+                            $notificationData['message'] = __(':name liked your comment', ['name' => $user->name]);
                             $notificationData['post_comment_id'] = $postComment->id;
                             $notificationData['to_user_id'] = $postComment->user_id;
                         }
@@ -262,8 +263,10 @@ class NotificationServiceProvider extends ServiceProvider
             }
 
             // Withdrawal request
-            if ($withdrawal != null && isset($withdrawal->id) && isset($withdrawal->user_id) && isset($withdrawal->amount)
-                && isset($withdrawal->status)) {
+            if (
+                $withdrawal != null && isset($withdrawal->id) && isset($withdrawal->user_id) && isset($withdrawal->amount)
+                && isset($withdrawal->status)
+            ) {
                 // Setting the locale of the message receiver
                 $toUser = User::where('id', $withdrawal->user_id)->select(['email', 'username', 'name', 'settings'])->first();
                 App::setLocale($toUser->settings['locale']);
@@ -278,15 +281,17 @@ class NotificationServiceProvider extends ServiceProvider
             }
 
             // New user message
-            if ($userMessage != null && isset($userMessage->id) && isset($userMessage->sender_id) && isset($userMessage->receiver_id)
-                && isset($userMessage->message)) {
+            if (
+                $userMessage != null && isset($userMessage->id) && isset($userMessage->sender_id) && isset($userMessage->receiver_id)
+                && isset($userMessage->message)
+            ) {
                 $notificationData['user_message_id'] = $userMessage->id;
                 $notificationData['to_user_id'] = $userMessage->receiver_id;
                 $notificationData['message'] = $userMessage->message;
             }
 
             // Expiring live streaming message and email notification
-            if($stream && $type === Notification::EXPIRING_STREAM) {
+            if ($stream && $type === Notification::EXPIRING_STREAM) {
                 // Setting the locale of the message receiver
                 App::setLocale($stream->user->settings['locale']);
                 $message = __('Your live stream is about to end in 30 minutes. You can start another one afterwards.');
@@ -297,7 +302,7 @@ class NotificationServiceProvider extends ServiceProvider
                     [
                         'email' => $stream->user->email,
                         'subject' => __('Your live stream is about to end'),
-                        'title' => __('Hello, :name,', ['name'=>$stream->user->name]),
+                        'title' => __('Hello, :name,', ['name' => $stream->user->name]),
                         'content' =>  $message,
                         'button' => [
                             'text' => __('Watch streaming'),
@@ -321,11 +326,11 @@ class NotificationServiceProvider extends ServiceProvider
                 $modelData = $notificationData;
                 unset($modelData['message']);
                 $notification = Notification::create($modelData);
-                $notification->setAttribute('message',$notificationData['message']);
+                $notification->setAttribute('message', $notificationData['message']);
                 self::publishNotification($notification, $toUser);
             }
         } catch (\Exception $exception) {
-            Log::error('Failed sending notification: '.$exception->getMessage());
+            Log::error('Failed sending notification: ' . $exception->getMessage());
         }
     }
 
@@ -353,9 +358,9 @@ class NotificationServiceProvider extends ServiceProvider
             $data['notification'] = $notification;
             $pusher->trigger($toUser->username, $event, $data);
         } catch (GuzzleException $guzzleException) {
-            Log::error('Pusher guzzle exception: '.$guzzleException->getMessage());
+            Log::error('Pusher guzzle exception: ' . $guzzleException->getMessage());
         } catch (\Exception $exception) {
-            Log::error('Pusher exception: '.$exception->getMessage());
+            Log::error('Pusher exception: ' . $exception->getMessage());
         }
     }
 
@@ -382,7 +387,7 @@ class NotificationServiceProvider extends ServiceProvider
             }
         }
 
-        if (! $skip) {
+        if (!$skip) {
             return self::createAndPublishNotification(
                 Notification::NEW_REACTION,
                 null,
@@ -521,8 +526,10 @@ class NotificationServiceProvider extends ServiceProvider
         if ($subscription != null) {
             if ($subscription->subscriber != null && $subscription->creator != null) {
                 // send email for the user who initiated the subscription
-                if (isset($subscription->subscriber->settings['notification_email_renewals'])
-                    && $subscription->subscriber->settings['notification_email_renewals'] == 'true') {
+                if (
+                    isset($subscription->subscriber->settings['notification_email_renewals'])
+                    && $subscription->subscriber->settings['notification_email_renewals'] == 'true'
+                ) {
                     $message = $succeeded ? __('successfully renewed') : __('failed renewing');
                     $buttonText = $succeeded ? __('Check out his profile for more content') : __('Go back to the website');
                     $buttonUrl = $succeeded ? route('profile', ['username' => $subscription->creator->username]) : route('home');
@@ -531,8 +538,8 @@ class NotificationServiceProvider extends ServiceProvider
                         [
                             'email' => $subscription->subscriber->email,
                             'subject' => __('Your subscription renewal'),
-                            'title' => __('Hello, :name,', ['name'=>$subscription->subscriber->name]),
-                            'content' =>  __('Email subscription updated', ['name'=>$subscription->creator->name, 'message'=>$message]),
+                            'title' => __('Hello, :name,', ['name' => $subscription->subscriber->name]),
+                            'content' =>  __('Email subscription updated', ['name' => $subscription->creator->name, 'message' => $message]),
                             'button' => [
                                 'text' => $buttonText,
                                 'url' => $buttonUrl,
@@ -548,9 +555,12 @@ class NotificationServiceProvider extends ServiceProvider
      * Generate new tip notification
      * @param $transaction
      */
-    public static function createTipNotificationByTransaction($transaction){
-        if ($transaction != null && $transaction->status === Transaction::APPROVED_STATUS
-            && ($transaction->type === Transaction::TIP_TYPE || $transaction->type === Transaction::CHAT_TIP_TYPE)) {
+    public static function createTipNotificationByTransaction($transaction)
+    {
+        if (
+            $transaction != null && $transaction->status === Transaction::APPROVED_STATUS
+            && ($transaction->type === Transaction::TIP_TYPE || $transaction->type === Transaction::CHAT_TIP_TYPE)
+        ) {
             self::createNewTipNotification($transaction);
         }
     }
@@ -559,13 +569,16 @@ class NotificationServiceProvider extends ServiceProvider
      * Generate new PPV unlock notification
      * @param $transaction
      */
-    public static function createPPVNotificationByTransaction($transaction){
-        if ($transaction != null && $transaction->status === Transaction::APPROVED_STATUS
-            && in_array($transaction->type,[
+    public static function createPPVNotificationByTransaction($transaction)
+    {
+        if (
+            $transaction != null && $transaction->status === Transaction::APPROVED_STATUS
+            && in_array($transaction->type, [
                 Transaction::STREAM_ACCESS,
                 Transaction::POST_UNLOCK,
                 Transaction::MESSAGE_UNLOCK
-            ])) {
+            ])
+        ) {
             self::createNewPPVUnlockNotification($transaction);
         }
     }
@@ -575,7 +588,8 @@ class NotificationServiceProvider extends ServiceProvider
      * @param $notification
      * @return string|null
      */
-    public static function getNotificationFilterType($notification){
+    public static function getNotificationFilterType($notification)
+    {
         $type = null;
         if ($notification != null) {
             switch ($notification->type) {
@@ -611,7 +625,8 @@ class NotificationServiceProvider extends ServiceProvider
      * Gets the user un-read notifications
      * @return object
      */
-    public static function getUnreadNotifications(){
+    public static function getUnreadNotifications()
+    {
         $unreadNotifications = [
             'total' => 0,
             Notification::MESSAGES_FILTER => 0,
@@ -621,15 +636,19 @@ class NotificationServiceProvider extends ServiceProvider
             Notification::LIKES_FILTER => 0,
             Notification::WITHDRAWAL_ACTION => 0
         ];
-        if(Auth::user()){
+        if (Auth::user()) {
             $userId = Auth::user()->id;
             $userUnreadNotifications = Notification::where(['to_user_id' => $userId, 'read' => false])
                 ->groupBy('type')->select('type', DB::raw('count(*) as total'))->get();
-            if(count($userUnreadNotifications)){
-                foreach ($userUnreadNotifications as $notification){
-                    if(NotificationServiceProvider::getNotificationFilterType($notification)) {
-                        $unreadNotifications[NotificationServiceProvider::getNotificationFilterType($notification)] += $notification->total;
-                        $unreadNotifications['total'] += $notification->total;
+            if (count($userUnreadNotifications)) {
+                foreach ($userUnreadNotifications as $notification) {
+                    if (GenericHelperServiceProvider::isUserVerified() && $notification->type == "new-message") {
+                        //
+                    } else {
+                        if (NotificationServiceProvider::getNotificationFilterType($notification)) {
+                            $unreadNotifications[NotificationServiceProvider::getNotificationFilterType($notification)] += $notification->total;
+                            $unreadNotifications['total'] += $notification->total;
+                        }
                     }
                 }
             }
@@ -642,12 +661,13 @@ class NotificationServiceProvider extends ServiceProvider
      * Gets the unread user messages
      * @return mixed
      */
-    public static function getUnreadMessages(){
+    public static function getUnreadMessages()
+    {
         $userID = Auth::user()->id;
         $blockedMembers  = UserListMember::select(['user_id'])->where('list_id', DB::raw(Auth::user()->lists->firstWhere('type', 'blocked')->id))->get()->pluck('user_id')->toArray();
-        $count =  UserMessage::where('receiver_id',$userID)
-            ->whereNotIn('sender_id',$blockedMembers)
-            ->where('isSeen',0)
+        $count =  UserMessage::where('receiver_id', $userID)
+            ->whereNotIn('sender_id', $blockedMembers)
+            ->where('isSeen', 0)
             ->count();
         return $count;
     }
@@ -656,14 +676,15 @@ class NotificationServiceProvider extends ServiceProvider
      * Send deposit approved email notification for user
      * @param $transaction
      */
-    public static function sendApprovedDepositTransactionEmailNotification($transaction) {
-        if($transaction && $transaction->status === Transaction::APPROVED_STATUS && $transaction->type === Transaction::DEPOSIT_TYPE){
+    public static function sendApprovedDepositTransactionEmailNotification($transaction)
+    {
+        if ($transaction && $transaction->status === Transaction::APPROVED_STATUS && $transaction->type === Transaction::DEPOSIT_TYPE) {
             EmailsServiceProvider::sendGenericEmail(
                 [
                     'email' => $transaction->receiver->email,
                     'subject' => __('Your deposit request has been approved'),
-                    'title' => __('Hello, :name,', ['name'=>$transaction->receiver->name]),
-                    'content' =>  __('Your deposit request of :amount has been approved.', ['amount'=>$transaction->amount]),
+                    'title' => __('Hello, :name,', ['name' => $transaction->receiver->name]),
+                    'content' =>  __('Your deposit request of :amount has been approved.', ['amount' => $transaction->amount]),
                     'button' => [
                         'text' => __('Check your wallet'),
                         'url' => route('my.settings', ['type' => 'wallet']),
@@ -677,15 +698,16 @@ class NotificationServiceProvider extends ServiceProvider
      * Send partially paid NowPayments transaction email notification for website admin
      * @param $transaction
      */
-    public static function sendNowPaymentsPartiallyPaidTransactionEmailNotification($transaction) {
-        if($transaction && $transaction->status === Transaction::PARTIALLY_PAID_STATUS){
+    public static function sendNowPaymentsPartiallyPaidTransactionEmailNotification($transaction)
+    {
+        if ($transaction && $transaction->status === Transaction::PARTIALLY_PAID_STATUS) {
             $adminEmails = User::where('role_id', 1)->select(['email', 'name'])->get();
             foreach ($adminEmails as $email) {
                 EmailsServiceProvider::sendGenericEmail(
                     [
                         'email' => $email,
                         'subject' => __('Partially paid payment'),
-                        'title' => __('Hello, :name,', ['name'=>'Admin']),
+                        'title' => __('Hello, :name,', ['name' => 'Admin']),
                         'content' =>  __('There is a partially paid payment done with NowPayments that requires your attention. (:paymentId)', ['paymentId' => $transaction->nowpayments_payment_id]),
                         'button' => [
                             'text' => __('Check payment'),
@@ -702,7 +724,7 @@ class NotificationServiceProvider extends ServiceProvider
      */
     public static function createExpiringStreamNotifications($stream)
     {
-        if($stream && $stream->user && $stream->status === Stream::IN_PROGRESS_STATUS) {
+        if ($stream && $stream->user && $stream->status === Stream::IN_PROGRESS_STATUS) {
             // create website and email notifications
             return self::createAndPublishNotification(
                 Notification::EXPIRING_STREAM,

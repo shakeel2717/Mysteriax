@@ -35,7 +35,7 @@ class MessengerController extends Controller
      * @param Request $request
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function index(Request $request)
+    public function index(Request $request, $userId = false)
     {
         $lastContactID = false;
         $lastContact = $this->fetchContacts(1);
@@ -55,6 +55,10 @@ class MessengerController extends Controller
         }
 
         $availableContacts = $this->getUserSearch($request);
+
+        if($userId){
+            $lastContactID = $userId;
+        }
 
         Javascript::put([
             'messengerVars' => [
@@ -94,7 +98,7 @@ class MessengerController extends Controller
         $unseenMessages = UserMessage::where('receiver_id', Auth::user()->id)->where('isSeen', 0)->count();
         // marking this conversation as read
         UserMessage::where('receiver_id', Auth::user()->id)->where('isSeen', 0)->update(['isSeen' => 1]);
-        
+
         $data = [
             'lastContactID' => $lastContactID,
             'unseenMessages' => $unseenMessages,
@@ -421,6 +425,7 @@ class MessengerController extends Controller
      */
     public function sendMessage(Request $request)
     {
+
         $receiverIDs = $request->get('receiverIDs');
         $return = [];
         $errors = [];
@@ -720,6 +725,10 @@ class MessengerController extends Controller
             }
             // Creator is free/open & wants to message the follower
             if ((!$viewerUser->paid_profile || $viewerUser->open_profile) && ListsHelperServiceProvider::isUserFollowing($contactId, $viewerID)) {
+                return true;
+            }
+            // if the receiver is already followed to sender
+            if (ListsHelperServiceProvider::isUserFollowing($contactId, $viewerID) || ListsHelperServiceProvider::isUserFollowing($viewerID, $contactId)) {
                 return true;
             }
         }

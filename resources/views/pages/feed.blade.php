@@ -44,7 +44,7 @@
     <div class="container">
         <div class="row">
             <div class="col-12 col-sm-12 col-lg-8 col-md-7 second p-0 ">
-                <div class="d-flex d-md-none px-3 py-3 feed-mobile-search neutral-bg fixed-top-m">
+                <div class="d-flex d-md-none px-3 py-3 feed-mobile-search neutral-bg fixed-top-m align-items-center">
                     @include('elements.search-box')
                 </div>
 

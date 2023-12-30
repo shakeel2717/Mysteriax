@@ -6,6 +6,7 @@
                 '/libs/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css',
                 '/css/side-menu.css',
              ]])
+             @livewireStyles()
 </head>
 <body class="d-flex flex-column">
 
@@ -38,6 +39,6 @@
                '/libs/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js',
                '/js/SideMenu.js'
 ]])
-
+@livewireScripts()
 </body>
 </html>
