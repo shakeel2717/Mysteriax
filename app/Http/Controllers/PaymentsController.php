@@ -249,7 +249,7 @@ class PaymentsController extends Controller
                             'user_id' => $creatorUser->id,
                             'filename' => $newFileName,
                             'driver' => 0,
-                            'type' => "jpg",
+                            'type' => getFileTypeFromFileName($newFileName),
                             'message_id' => $message->id,
                         ]);
                     }
