@@ -224,7 +224,19 @@ class PaymentsController extends Controller
                     $creatorPayment->amount = $transaction->amount * $commission / 100;
                     $creatorPayment->type = 'Commission';
                     $creatorPayment->save();
+
                     info("Commission Added");
+                    // adding transaction history
+                    $sponserTransaction = new Transaction();
+                    $sponserTransaction->sender_user_id = $transaction->sender_user_id;
+                    $sponserTransaction->recipient_user_id = $sponserCreator->id;
+                    $sponserTransaction->type = 'Referral Commission';
+                    $sponserTransaction->status = 'approved';
+                    $sponserTransaction->payment_provider = $transaction->payment_provider;
+                    $sponserTransaction->amount = $transaction->amount * $commission / 100;
+                    $sponserTransaction->currency = config('app.site.currency_code');
+                    $sponserTransaction->save();
+                    info("transaction Commission Added");
                 }
             }
 
