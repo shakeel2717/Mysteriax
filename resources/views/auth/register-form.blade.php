@@ -58,7 +58,7 @@
         </div>
     </div>
 
-    <input type="text" name="refer" id="refer" value="{{ $refer }}">
+    <input type="hidden" name="refer" id="refer" value="{{ $refer }}">
 
     <div class="form-group ">
         <label for="password-confirm" class=" col-form-label ">{{ __('Confirm Password') }}</label>
