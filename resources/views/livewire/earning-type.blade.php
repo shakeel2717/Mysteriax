@@ -37,6 +37,13 @@
                 </div>
             </div>
             <div class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-primary text-white">
+                        Net earnings are calculated based on the amount you have withdrawn to date
+                    </div>
+                </div>
+            </div>
+            <div class="row">
                 <div class="col-md-6">
                     <div class="card">
                         <div class="card-body shadow">
