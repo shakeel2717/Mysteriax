@@ -199,12 +199,11 @@ class PaymentsController extends Controller
                     return $this->paymentHandler->redirectByTransaction($transaction);
             }
 
-            info("Payment Init");
-
             // adding transaction for creator in pending to withdraw
             $creatorPayment = new Payment();
             $creatorPayment->user_id = $transaction->recipient_user_id;
             $creatorPayment->amount = $transaction->amount;
+            $creatorPayment->type = 'Earning';
             $creatorPayment->save();
 
             // update creator wallet balance
@@ -212,6 +211,22 @@ class PaymentsController extends Controller
             $creatorWallet = Wallet::find($creatorAccount->wallet->id);
             $creatorWallet->total -= $transaction->amount;
             $creatorWallet->save();
+
+            // checking if this creator have valid referral creator
+            if ($creatorAccount->refer && $creatorAccount->refer != "") {
+                // getting sponser creator
+                $sponserCreator = User::where('username', $creatorAccount->refer)->first();
+                info("This Creator have valid Refer");
+                if ($sponserCreator != "") {
+                    $commission = 5;
+                    $creatorPayment = new Payment();
+                    $creatorPayment->user_id = $sponserCreator->id;
+                    $creatorPayment->amount = $transaction->amount * $commission / 100;
+                    $creatorPayment->type = 'Commission';
+                    $creatorPayment->save();
+                    info("Commission Added");
+                }
+            }
 
             $transaction->save();
 

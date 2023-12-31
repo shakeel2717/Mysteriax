@@ -54,6 +54,7 @@ class SettingsController extends Controller
         'verify' => ['heading' => 'Get verified and start to earning now', 'icon' => 'checkmark'],
         'welcome' => ['heading' => 'Set a Welcome Message for your Profile', 'icon' => 'checkmark'],
         'referral' => ['heading' => 'Set a Welcome Message for your Profile', 'icon' => 'checkmark'],
+        'earning' => ['heading' => 'Referral Earnings report', 'icon' => 'checkmark'],
     ];
 
     public function __construct()

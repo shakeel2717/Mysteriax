@@ -111,6 +111,22 @@
                                     'classes' => 'mr-2',
                                 ])
                             </li>
+                            <li class="custom-nav-link">
+                                <a class="text-muted" href="{{ route('my.settings', ['type' => 'earning']) }}">Earnings</a>
+                                @include('elements.icon', [
+                                    'icon' => 'caret-forward-outline',
+                                    'variant' => 'small',
+                                    'classes' => 'mr-2',
+                                ])
+                            </li>
+                            <li class="custom-nav-link">
+                                <a class="text-muted" href="{{ route('my.settings', ['type' => 'clicks']) }}">Link Clicks</a>
+                                @include('elements.icon', [
+                                    'icon' => 'caret-forward-outline',
+                                    'variant' => 'small',
+                                    'classes' => 'mr-2',
+                                ])
+                            </li>
                         </ul>
                     </div>
                 @else

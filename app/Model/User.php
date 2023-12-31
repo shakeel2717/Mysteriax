@@ -244,4 +244,8 @@ class User extends \TCG\Voyager\Models\User implements MustVerifyEmail
     {
         return $this->hasMany(Payment::class)->where('status', false);
     }
+
+    public function referral_earnings(){
+        return $this->hasMany(Payment::class)->where('type','Commission');
+    }
 }

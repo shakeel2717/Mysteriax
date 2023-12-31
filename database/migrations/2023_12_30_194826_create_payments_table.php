@@ -17,6 +17,7 @@ class CreatePaymentsTable extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->double('amount');
+            $table->string('type')->default("Earning");
             $table->boolean('status')->default(false);
             $table->timestamps();
         });
