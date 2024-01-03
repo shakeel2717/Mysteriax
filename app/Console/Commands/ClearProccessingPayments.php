@@ -46,9 +46,9 @@ class ClearProccessingPayments extends Command
             $createdAt = Carbon::parse($payment->created_at);
             $currentDateTime = Carbon::now();
 
-            $daysDifference = $createdAt->diffInDays($currentDateTime);
+            $daysDifference = $createdAt->diffInHours($currentDateTime);
 
-            if ($daysDifference >= 5) {
+            if ($daysDifference >= $payment->user->processing_hours) {
                 $payment->status = true;
                 $payment->save();
             }
