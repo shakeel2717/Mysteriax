@@ -39,6 +39,7 @@ class ClearProccessingPayments extends Command
      */
     public function handle()
     {
+        info("Command Run for Processing Pending Payment ");
         // getting all pending transactions that's 5 days old
         $payments = Payment::where('status', false)->get();
         foreach ($payments as $payment) {
