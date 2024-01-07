@@ -78,7 +78,11 @@
 
                         @case(\App\Model\Notification::PPV_UNLOCK)
                             {{ $notification->fromUser->name }}
-                            {{ __('bought your ' . $notification->PPVUnlockType . ' for $') . number_format($notification->post->price, 2) . '.' }}
+                            @if ($notification->post)
+                                {{ __('bought your ' . $notification->PPVUnlockType . ' for $') . number_format($notification->post->price, 2) . '.' }}
+                            @else
+                                {{ __('bought your ' . $notification->PPVUnlockType) . '.' }}
+                            @endif
                         @break
 
                     @endswitch
@@ -89,7 +93,7 @@
                 </div>
             </div>
         </div>
-        <a href="{{ route('my.messenger.show',['user' => $notification->fromUser->id]) }}"
+        <a href="{{ route('my.messenger.show', ['user' => $notification->fromUser->id]) }}"
             class="h-pill-primary nav-link mr-2 d-flex justify-content-between">
             <div class="d-flex justify-content-center align-items-center">
                 <div class="icon-wrapper d-flex justify-content-center align-items-center position-relative">
