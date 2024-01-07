@@ -42,7 +42,7 @@
                         <div class="card-body shadow">
                             <h5 class="card-title">Gross Earnings</h5>
                             <h2 class="card-title mb-0">
-                                ${{ number_format(auth()->user()->myTransactions()->where('type','!=','withdrawal')->whereBetween('created_at', [$startDate, $endDate])->sum('amount'),2) }}
+                                ${{ number_format(auth()->user()->myTransactions()->where('type', '!=', 'withdrawal')->whereBetween('created_at', [$startDate, $endDate])->sum('amount'),2) }}
                             </h2>
                         </div>
                     </div>
@@ -50,9 +50,16 @@
                 <div class="col-md-6">
                     <div class="card">
                         <div class="card-body shadow">
-                            <h5 class="card-title">Net Earnings</h5>
+                            <h5 class="card-title">Net Earnings <span data-toggle="tooltip" title="Net earnings are calculated based on the amount you have withdrawn to date">
+                                    @include('elements.icon', [
+                                        'icon' => 'information-circle-outline',
+                                        'variant' => 'small',
+                                        'centered' => false,
+                                        'classes' => 'mr-2',
+                                    ])
+                                </span> </h5>
                             <h2 class="card-title mb-0">
-                                ${{ number_format(auth()->user()->myTransactions()->where('type','withdrawal')->whereBetween('created_at', [$startDate, $endDate])->sum('amount'),2) }}
+                                ${{ number_format(auth()->user()->myTransactions()->where('type', 'withdrawal')->whereBetween('created_at', [$startDate, $endDate])->sum('amount'),2) }}
                             </h2>
                         </div>
                     </div>

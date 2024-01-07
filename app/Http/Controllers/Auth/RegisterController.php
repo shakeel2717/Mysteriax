@@ -40,11 +40,22 @@ class RegisterController extends Controller
     public function __construct()
     {
         $redirectRoute = route('feed');
-        if(getSetting('site.redirect_page_after_register') && getSetting('site.redirect_page_after_register') == 'settings'){
+        if (getSetting('site.redirect_page_after_register') && getSetting('site.redirect_page_after_register') == 'settings') {
             $redirectRoute = route('my.settings');
         }
         $this->redirectTo = $redirectRoute;
         $this->middleware('guest');
+    }
+
+    public function showRegistrationForm(Request $request)
+    {
+        $refer = $request->input('refer');
+        if ($refer) {
+            $refer = $refer;
+        } else {
+            $refer = null;
+        }
+        return view('auth.register',compact("refer"));
     }
 
     /**
@@ -57,25 +68,27 @@ class RegisterController extends Controller
     {
 
         $additionalRules = [];
-        if(getSetting('security.recaptcha_enabled')){
+        if (getSetting('security.recaptcha_enabled')) {
             $additionalRules = [
                 'g-recaptcha-response' => 'required|captcha'
             ];
         }
 
         $emailValidationRule = ['required', 'string', 'email', 'max:255', 'unique:users'];
-        if(getSetting('security.enforce_email_valid_check') && getSetting('security.email_abstract_api_key')){
+        if (getSetting('security.enforce_email_valid_check') && getSetting('security.email_abstract_api_key')) {
             $emailValidationRule = ['required', 'string', 'email', 'max:255', 'unique:users', new IsEmailDelivrable];
         }
 
         // If abstract api enabled, check if email is delivrable
-        return Validator::make($data, array_merge([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => $emailValidationRule,
-            'password' => ['min:6', 'required', 'string', 'confirmed'],
-            'password_confirmation' => ['required', 'min:6'],
-            'terms' => ['required'],
-            ],$additionalRules)
+        return Validator::make(
+            $data,
+            array_merge([
+                'name' => ['required', 'string', 'max:255'],
+                'email' => $emailValidationRule,
+                'password' => ['min:6', 'required', 'string', 'confirmed'],
+                'password_confirmation' => ['required', 'min:6'],
+                'terms' => ['required'],
+            ], $additionalRules)
         );
     }
 

@@ -39,6 +39,7 @@ class ClearProccessingPayments extends Command
      */
     public function handle()
     {
+        info("Command Run for Processing Pending Payment ");
         // getting all pending transactions that's 5 days old
         $payments = Payment::where('status', false)->get();
         foreach ($payments as $payment) {
@@ -46,9 +47,9 @@ class ClearProccessingPayments extends Command
             $createdAt = Carbon::parse($payment->created_at);
             $currentDateTime = Carbon::now();
 
-            $daysDifference = $createdAt->diffInDays($currentDateTime);
+            $daysDifference = $createdAt->diffInHours($currentDateTime);
 
-            if ($daysDifference >= 5) {
+            if ($daysDifference >= $payment->user->processing_hours) {
                 $payment->status = true;
                 $payment->save();
             }

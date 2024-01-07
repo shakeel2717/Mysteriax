@@ -22,9 +22,7 @@ class AuthServiceProvider extends ServiceProvider
      *
      * @var array
      */
-    protected $policies = [
-
-    ];
+    protected $policies = [];
 
     /**
      * Register any authentication / authorization services.
@@ -49,7 +47,7 @@ class AuthServiceProvider extends ServiceProvider
         $userData = [
             'name' => $data['name'],
             'email' => $data['email'],
-            'username' => 'u'.time(),
+            'username' => 'u' . time(),
             'password' => isset($data['password']) ? Hash::make($data['password']) : '',
             'settings' => collect([
                 'notification_email_new_sub' => 'true',
@@ -78,25 +76,24 @@ class AuthServiceProvider extends ServiceProvider
         if (isset($data['auth_provider_id'])) {
             $userData['auth_provider_id'] = $data['auth_provider_id'];
         }
-        if(getSetting('security.default_2fa_on_register')){
+        if (getSetting('security.default_2fa_on_register')) {
             $userData['enable_2fa'] = true;
         }
-        if(getSetting('profiles.default_profile_type_on_register') == 'free'){
+        if (getSetting('profiles.default_profile_type_on_register') == 'free') {
             $userData['paid_profile'] = 0;
         }
 
-        if(getSetting('profiles.default_user_privacy_setting_on_register') && getSetting('profiles.default_user_privacy_setting_on_register')  == 'private'){
+        if (getSetting('profiles.default_user_privacy_setting_on_register') && getSetting('profiles.default_user_privacy_setting_on_register')  == 'private') {
             $userData['public_profile'] = false;
-        }
-        else{
+        } else {
             $userData['public_profile'] = true;
         }
 
-        if(getSetting('profiles.default_profile_type_on_register') === 'open') {
+        if (getSetting('profiles.default_profile_type_on_register') === 'open') {
             $userData['open_profile'] = true;
         }
 
-        if(getSetting('payments.default_subscription_price')){
+        if (getSetting('payments.default_subscription_price')) {
             $price = getSetting('payments.default_subscription_price');
             $userData['profile_access_price'] = $price;
             $userData['profile_access_price_6_months'] = $price;
@@ -106,37 +103,39 @@ class AuthServiceProvider extends ServiceProvider
         try {
             $code = self::generateReferralCode(8);
             $userData['referral_code'] = $code;
-        } catch (\Exception $exception){
+        } catch (\Exception $exception) {
         }
 
+
+        $userData['refer'] = $data['refer'];
 
         $user = User::create($userData);
 
         if ($user != null) {
             GenericHelperServiceProvider::createUserWallet($user);
             ListsHelperServiceProvider::createUserDefaultLists($user->id);
-            if(getSetting('security.default_2fa_on_register')) {
+            if (getSetting('security.default_2fa_on_register')) {
                 self::addNewUserDevice($user->id, true);
             }
-            if(getSetting('profiles.default_users_to_follow')){
-                $usersToFollow = explode(',',getSetting('profiles.default_users_to_follow'));
-                if(count($usersToFollow)){
-                    foreach($usersToFollow as $userID){
-                        ListsHelperServiceProvider::managePredefinedUserMemberList($user->id,$userID,'follow');
+            if (getSetting('profiles.default_users_to_follow')) {
+                $usersToFollow = explode(',', getSetting('profiles.default_users_to_follow'));
+                if (count($usersToFollow)) {
+                    foreach ($usersToFollow as $userID) {
+                        ListsHelperServiceProvider::managePredefinedUserMemberList($user->id, $userID, 'follow');
                     }
                 }
             }
-            if(getSetting('referrals.enabled')) {
+            if (getSetting('referrals.enabled')) {
                 // Saving the referral even if the case
-                if(Cookie::has('referral')){
+                if (Cookie::has('referral')) {
                     $referralID = User::where('referral_code', Cookie::get('referral'))->first();
-                    if($referralID){
+                    if ($referralID) {
                         $existing = ReferralCodeUsage::where(['used_by' => $user->id, 'referral_code' => $referralID->referral_code])->first();
-                        if(!$existing) {
+                        if (!$existing) {
                             ReferralCodeUsage::create(['used_by' => $user->id, 'referral_code' => $referralID->referral_code]);
                             Cookie::queue(Cookie::forget('referral'));
-                            if(getSetting('referrals.auto_follow_the_user')){
-                                ListsHelperServiceProvider::managePredefinedUserMemberList($user->id,$referralID->id,'follow');
+                            if (getSetting('referrals.auto_follow_the_user')) {
+                                ListsHelperServiceProvider::managePredefinedUserMemberList($user->id, $referralID->id, 'follow');
                             }
                         }
                     }
@@ -144,7 +143,7 @@ class AuthServiceProvider extends ServiceProvider
             }
         }
 
-        if (isset($data['auth_provider']) && isset($data['auth_provider_id'])){
+        if (isset($data['auth_provider']) && isset($data['auth_provider_id'])) {
             $user->sendEmailVerificationNotification();
         }
 
@@ -160,15 +159,15 @@ class AuthServiceProvider extends ServiceProvider
             $user = Auth::user();
             $code = rand(100000, 999999);
             UserCode::updateOrCreate(
-                [ 'user_id' => $user->id ],
-                [ 'code' => $code ]
+                ['user_id' => $user->id],
+                ['code' => $code]
             );
             App::setLocale($user->settings['locale']);
             EmailsServiceProvider::sendGenericEmail(
                 [
                     'email' => $user->email,
                     'subject' => __('Verify your new device'),
-                    'title' => __('Hello, :name,', ['name'=>$user->name]),
+                    'title' => __('Hello, :name,', ['name' => $user->name]),
                     'content' => __('Your verification code is:') . ' ' .  $code,
                     'button' => [
                         'text' => __('Go to site'),
@@ -185,8 +184,9 @@ class AuthServiceProvider extends ServiceProvider
      * Generates new string for current addr&agent
      * @return string
      */
-    public static function generate2FaDeviceSignature(){
-        return sha1(request()->ip().request()->header('User-Agent'));
+    public static function generate2FaDeviceSignature()
+    {
+        return sha1(request()->ip() . request()->header('User-Agent'));
     }
 
     /**
@@ -195,9 +195,10 @@ class AuthServiceProvider extends ServiceProvider
      * @param bool $verified
      * @return mixed
      */
-    public static function addNewUserDevice($userID, $verified = false){
+    public static function addNewUserDevice($userID, $verified = false)
+    {
         $signature = self::generate2FaDeviceSignature();
-        if(!UserDevice::where('signature',$signature)->where('user_id',$userID)->first()) {
+        if (!UserDevice::where('signature', $signature)->where('user_id', $userID)->first()) {
             $data = [
                 'user_id' => $userID,
                 'address' => request()->ip(),
@@ -217,8 +218,9 @@ class AuthServiceProvider extends ServiceProvider
      * @param $userID
      * @return mixed
      */
-    public static function getUserDevices($userID){
-        return UserDevice::where('user_id',$userID)->where('verified_at','<>',null)->select('signature')->pluck('signature')->toArray();
+    public static function getUserDevices($userID)
+    {
+        return UserDevice::where('user_id', $userID)->where('verified_at', '<>', null)->select('signature')->pluck('signature')->toArray();
     }
 
     /**
@@ -226,7 +228,8 @@ class AuthServiceProvider extends ServiceProvider
      * @return string
      * @throws \Exception
      */
-    public static function generateReferralCode($length, $prefix = null) {
+    public static function generateReferralCode($length, $prefix = null)
+    {
         $code = '';
         while (strlen($code) < $length || User::query()->where('referral_code', $code)->first() != null) {
             $code .= substr(self::ALPHABET, (random_int(1, 28) - 1), 1);
@@ -238,5 +241,4 @@ class AuthServiceProvider extends ServiceProvider
 
         return $code;
     }
-
 }

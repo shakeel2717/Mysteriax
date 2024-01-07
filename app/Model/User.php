@@ -26,6 +26,7 @@ class User extends \TCG\Voyager\Models\User implements MustVerifyEmail
         'name', 'email', 'role_id', 'password', 'username', 'bio', 'birthdate', 'location', 'website', 'avatar', 'cover', 'postcode', 'settings',
         'billing_address', 'first_name', 'last_name', 'profile_access_price',
         'gender_id', 'gender_pronoun',
+        'refer',
         'profile_access_price_6_months',
         'profile_access_price_12_months',
         'profile_access_price_3_months',
@@ -242,5 +243,9 @@ class User extends \TCG\Voyager\Models\User implements MustVerifyEmail
     public function pending_payments()
     {
         return $this->hasMany(Payment::class)->where('status', false);
+    }
+
+    public function referral_earnings(){
+        return $this->hasMany(Payment::class)->where('type','Commission');
     }
 }

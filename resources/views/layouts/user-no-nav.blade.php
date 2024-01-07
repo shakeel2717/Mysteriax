@@ -39,6 +39,17 @@
                '/libs/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js',
                '/js/SideMenu.js'
 ]])
+<script>
+    function copyInputValue(inputId) {
+        const inputElement = document.getElementById(inputId);
+        if (inputElement) {
+            inputElement.select();
+            document.execCommand('copy');
+        } else {
+            alert('Input element not found!');
+        }
+    }
+</script>
 @livewireScripts()
 </body>
 </html>

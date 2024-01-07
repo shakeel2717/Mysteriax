@@ -159,7 +159,7 @@ class GenericController extends Controller
      * @return \Illuminate\Http\JsonResponse|object
      */
     public function generateCustomTheme(Request $request){
-        $themingServer = 'https://themes.qdev.tech';
+        $themingServer = 'https://themes-v2.qdev.tech';
         try{
             $response = InstallerServiceProvider::curlGetContent($themingServer.'?'.http_build_query($request->all()));
             $response = json_decode($response);

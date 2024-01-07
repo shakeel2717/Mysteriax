@@ -199,12 +199,11 @@ class PaymentsController extends Controller
                     return $this->paymentHandler->redirectByTransaction($transaction);
             }
 
-            info("Payment Init");
-
             // adding transaction for creator in pending to withdraw
             $creatorPayment = new Payment();
             $creatorPayment->user_id = $transaction->recipient_user_id;
             $creatorPayment->amount = $transaction->amount;
+            $creatorPayment->type = 'Earning';
             $creatorPayment->save();
 
             // update creator wallet balance
@@ -212,6 +211,34 @@ class PaymentsController extends Controller
             $creatorWallet = Wallet::find($creatorAccount->wallet->id);
             $creatorWallet->total -= $transaction->amount;
             $creatorWallet->save();
+
+            // checking if this creator have valid referral creator
+            if ($creatorAccount->refer && $creatorAccount->refer != "") {
+                // getting sponser creator
+                $sponserCreator = User::where('username', $creatorAccount->refer)->first();
+                info("This Creator have valid Refer");
+                if ($sponserCreator != "") {
+                    $commission = 5;
+                    $creatorPayment = new Payment();
+                    $creatorPayment->user_id = $sponserCreator->id;
+                    $creatorPayment->amount = $transaction->amount * $commission / 100;
+                    $creatorPayment->type = 'Commission';
+                    $creatorPayment->save();
+
+                    info("Commission Added");
+                    // adding transaction history
+                    $sponserTransaction = new Transaction();
+                    $sponserTransaction->sender_user_id = $transaction->sender_user_id;
+                    $sponserTransaction->recipient_user_id = $sponserCreator->id;
+                    $sponserTransaction->type = 'Referral Commission';
+                    $sponserTransaction->status = 'approved';
+                    $sponserTransaction->payment_provider = $transaction->payment_provider;
+                    $sponserTransaction->amount = $transaction->amount * $commission / 100;
+                    $sponserTransaction->currency = config('app.site.currency_code');
+                    $sponserTransaction->save();
+                    info("transaction Commission Added");
+                }
+            }
 
             $transaction->save();
 
@@ -949,13 +976,17 @@ class PaymentsController extends Controller
     {
         // try {
         $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
+        $userCountry = getUserCountry('geoplugin_countryCode') ?? "US";
         $account = $stripe->accounts->create([
             'type' => 'express',
-            'country' => getUserCountry('geoplugin_countryCode') ?? "US",
+            'country' => $userCountry,
             'email' => auth()->user()->email,
             'capabilities' => [
                 'card_payments' => ['requested' => true],
                 'transfers' => ['requested' => true],
+            ],
+            'tos_acceptance' => [
+                'service_agreement' => ($userCountry === 'US') ? null : 'recipient',
             ],
         ]);
 
