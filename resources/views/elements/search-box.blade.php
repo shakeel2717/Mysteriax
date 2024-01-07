@@ -31,3 +31,20 @@
     @endif
 
 </form>
+@if (GenericHelper::isUserVerified())
+<a href="{{ route('my.notifications') }}"
+    class="h-pill h-pill-primary nav-link d-flex d-md-none justify-content-between px-3 {{ Route::currentRouteName() == 'my.notifications' ? 'active' : '' }}">
+    <div class="d-flex justify-content-center align-items-center">
+        <div class="icon-wrapper d-flex justify-content-center align-items-center position-relative">
+            @include('elements.icon', [
+                'icon' => 'notifications-outline',
+                'variant' => 'large',
+            ])
+            <div
+                class="menu-notification-badge notifications-menu-count {{ (isset($notificationsCountOverride) && $notificationsCountOverride->total > 0) || NotificationsHelper::getUnreadNotifications()->total > 0 ? '' : 'd-none' }}">
+                {{ !isset($notificationsCountOverride) ? NotificationsHelper::getUnreadNotifications()->total : $notificationsCountOverride->total }}
+            </div>
+        </div>
+    </div>
+</a>
+@endif
